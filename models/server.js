@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 
 /**
  * @class
@@ -31,6 +32,9 @@ class Server {
    * @returns { void } No devuelve nada.
    */
   middlewares() {
+    // CORS
+    this.app.use( cors() );
+    
     // Public Directory
     this.app.use( express.static( 'public' ) );
   };
