@@ -49,13 +49,13 @@ class Server {
     });
 
     this.app.put( '/api', ( req, res ) => {
-      res.json({
+      res.status( 500 ).json({
         msg: 'put API',
       });
     });
 
     this.app.post( '/api', ( req, res ) => {
-      res.json({
+      res.status( 201 ).json({
         msg: 'post API',
       });
     });
