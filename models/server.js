@@ -39,11 +39,31 @@ class Server {
   /**
    * @name routes
    * @description Agrega las rutas necesarias para el funcionamiento del server.
-   * @returns { void } No devuelve nada.
+   * @returns { void } No devuelve nada. 1. GET /api: Devuelve un mensaje de texto. 2. PUT /api: Devuelve un mensaje de texto. 3. POST /api: Devuelve un mensaje de texto. 4. DELETE /api: Devuelve un mensaje de texto. 5. Todas las rutas definidas anteriormente son manejadas por esta función
    */
   routes() {
     this.app.get( '/api', ( req, res ) => {
-      res.send( 'Hello World' );
+      res.json({
+        msg: 'get API',
+      });
+    });
+
+    this.app.put( '/api', ( req, res ) => {
+      res.json({
+        msg: 'put API',
+      });
+    });
+
+    this.app.post( '/api', ( req, res ) => {
+      res.json({
+        msg: 'post API',
+      });
+    });
+
+    this.app.delete( '/api', ( req, res ) => {
+      res.json({
+        msg: 'delete API',
+      });
     });
   };
 
