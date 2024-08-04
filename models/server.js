@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import usersRoutes from '../routes/users.js';
 
 /**
  * @class
@@ -16,7 +17,12 @@ class Server {
   constructor() {
     // Create the Express app instance
     this.app = express();
+
+    // Server settings
     this.port = process.env.PORT;
+
+    // Paths
+    this.usersPath = '/api/users';
 
     // Middlewares
     this.middlewares();
@@ -43,32 +49,10 @@ class Server {
   /**
    * @name routes
    * @description Agrega las rutas necesarias para el funcionamiento del server.
-   * @returns { void } No devuelve nada. 1. GET /api: Devuelve un mensaje de texto. 2. PUT /api: Devuelve un mensaje de texto. 3. POST /api: Devuelve un mensaje de texto. 4. DELETE /api: Devuelve un mensaje de texto. 5. Todas las rutas definidas anteriormente son manejadas por esta función
+   * @returns { void } No devuelve nada.
    */
   routes() {
-    this.app.get( '/api', ( req, res ) => {
-      res.json({
-        msg: 'get API',
-      });
-    });
-
-    this.app.put( '/api', ( req, res ) => {
-      res.status( 500 ).json({
-        msg: 'put API',
-      });
-    });
-
-    this.app.post( '/api', ( req, res ) => {
-      res.status( 201 ).json({
-        msg: 'post API',
-      });
-    });
-
-    this.app.delete( '/api', ( req, res ) => {
-      res.json({
-        msg: 'delete API',
-      });
-    });
+    this.app.use( this.usersPath, usersRoutes );
   };
 
   // Start the server
