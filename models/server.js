@@ -40,6 +40,9 @@ class Server {
   middlewares() {
     // CORS
     this.app.use( cors() );
+
+    // Body parser
+    this.app.use( express.json() );
     
     // Public Directory
     this.app.use( express.static( 'public' ) );

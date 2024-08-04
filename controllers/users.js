@@ -20,8 +20,12 @@ const usersGet = ( req, res = response ) => {
  * @param {*} res 
  */
 const usersPost = ( req, res = response ) => {
+  const { name, age } = req.body;
+
   res.status( 201 ).json({
     msg: 'post API - controller',
+    name,
+    age,
   });
 };
 
