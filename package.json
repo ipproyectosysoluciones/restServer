@@ -9,6 +9,10 @@
   },
   "keywords": [],
   "author": "Bladimir G. Parra B. | IP Proyectos y Soluciones",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ipproyectosysoluciones/restServer.git"
+  },
   "license": "ISC",
   "description": "",
   "dependencies": {
