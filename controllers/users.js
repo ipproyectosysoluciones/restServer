@@ -1,4 +1,4 @@
-import { response } from 'express';
+import { response, request } from 'express';
 
 
 /**
@@ -7,9 +7,16 @@ import { response } from 'express';
  * @param {*} req 
  * @param {*} res 
  */
-const usersGet = ( req, res = response ) => {
+const usersGet = ( req = request, res = response ) => {
+  const { q, name = 'No name', apikey, page = 1, limit } = req.query;
+
   res.json({
     msg: 'get API - controller',
+    q,
+    name,
+    apikey,
+    page,
+    limit,
   });
 };
 
@@ -19,10 +26,10 @@ const usersGet = ( req, res = response ) => {
  * @param {*} req 
  * @param {*} res 
  */
-const usersPost = ( req, res = response ) => {
+const usersPost = ( req = request, res = response ) => {
   const { name, age } = req.body;
 
-  res.status( 201 ).json({
+  res.json({
     msg: 'post API - controller',
     name,
     age,
@@ -36,8 +43,11 @@ const usersPost = ( req, res = response ) => {
  * @param {*} res 
  */
 const usersPut = ( req, res = response ) => {
-  res.status( 500 ).json({
+  const { id } = req.params;
+
+  res.json({
     msg: 'put API - controller',
+    id,
   });
 };
 
