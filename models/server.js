@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import usersRoutes from '../routes/users.js';
+import { dbConnection } from '../database/config.js';
 
 /**
  * @class
@@ -24,11 +25,24 @@ class Server {
     // Paths
     this.usersPath = '/api/users';
 
+    // Connect to DB
+    this.connectDB();
+
     // Middlewares
     this.middlewares();
 
     // Routes
     this.routes();
+  };
+
+  // Connect to DB
+  /**
+   * @name connectDB
+   * @description Conecta al motor de base de datos MongoDB.
+   * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando la conexión se realiza correctamente.
+   */
+  async connectDB() {
+    await dbConnection();
   };
 
   // Middlewares
