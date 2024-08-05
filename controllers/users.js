@@ -1,4 +1,5 @@
 import { response, request } from 'express';
+import User from '../models/user.js';
 
 
 /**
@@ -22,17 +23,20 @@ const usersGet = ( req = request, res = response ) => {
 
 /**
  * @name usersPost
- * @description
- * @param {*} req 
- * @param {*} res 
+ * @description Controlador para manejar las solicitudes POST y crear un nuevo usuario en la base de datos.
+ * @param {*} req Objeto de solicitud que contiene la información del cliente, como los datos enviados en el cuerpo de la solicitud (req.body).
+ * @param {*} res Objeto de respuesta que se utiliza para enviar la respuesta de vuelta al cliente.
+ * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando la solicitud se completa.
  */
-const usersPost = ( req = request, res = response ) => {
-  const { name, age } = req.body;
+const usersPost = async( req = request, res = response ) => {
+  const body = req.body;
+  const user = new User( body );
+
+  await user.save();
 
   res.json({
     msg: 'post API - controller',
-    name,
-    age,
+    user,
   });
 };
 
