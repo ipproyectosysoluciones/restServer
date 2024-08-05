@@ -19,7 +19,7 @@ class Server {
     this.app = express();
 
     // Server settings
-    this.port = process.env.PORT;
+    this.port = process.env.PORT || 3000;
 
     // Paths
     this.usersPath = '/api/users';
