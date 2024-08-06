@@ -1,4 +1,5 @@
 import Role from '../models/role.js';
+import User from '../models/user.js';
 
 /**
  * @name isRoleValid
@@ -14,4 +15,22 @@ const isRoleValid = async( role = '' ) => {
   };
 };
 
-export { isRoleValid };
+/**
+ * @name existEmail
+ * @description Valida si un email existe en la base de datos.
+ * @param { string } email - Email a validar.
+ * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando el email existe en la base de datos.
+ */
+const existEmail = async( email = '' ) => {
+  // Check if the email exists
+  const existEmail = await User.findOne({ email });
+
+  if ( existEmail ) {
+    throw new Error( `El email: ${ email }, ya se encuentra registrado en la DB!!` );
+  };
+};
+
+export { 
+  existEmail,
+  isRoleValid, 
+};

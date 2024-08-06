@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
 import { validateFields } from '../middleware/validate-fields.js';
-import { isRoleValid } from '../helpers/db-validators.js';
+import { existEmail, isRoleValid } from '../helpers/db-validators.js';
 import { 
   usersDelete,
   usersGet,
@@ -29,6 +29,7 @@ router.post( '/', [
   check( 'name', 'El nombre es obligatorio' ).not().isEmpty(),
   check( 'password', 'El password debe de tener más de 6 carácteres' ).isLength({ min: 6 }),
   check( 'email', 'El email no es válido' ).isEmail(),
+  check( 'email' ).custom( existEmail ),
   // check( 'role', 'No es un rol válido' ).isIn([ 'ADMIN_ROLE', 'USER_ROLE' ]),
   check( 'role' ).custom( isRoleValid ),
   validateFields,
