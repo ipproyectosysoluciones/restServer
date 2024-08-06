@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
+import Role from '../models/role.js';
 import { validateFields } from '../middleware/validate-fields.js';
 import { 
   usersDelete,
@@ -20,15 +21,22 @@ router.get( '/', usersGet );
  * @access Public
  * @param { string } name - Nombre del usuario.
  * @param { string } email - Email del usuario.
- * @param { string } password - Password del usuario.
- * @param { string } role - Rol del usuario ('ADMIN_ROLE' o 'USER_ROLE').
+ * @param { string } password - Password del usuario. 
+ * @param { string } role - Rol del usuario. Debe ser 'ADMIN_ROLE' o 'USER_ROLE' o 'SALES_ROLE'.
  * @returns { Object } - Usuario creado.
  */
 router.post( '/', [
   check( 'name', 'El nombre es obligatorio' ).not().isEmpty(),
   check( 'password', 'El password debe de tener más de 6 carácteres' ).isLength({ min: 6 }),
   check( 'email', 'El email no es válido' ).isEmail(),
-  check( 'role', 'No es un rol válido' ).isIn([ 'ADMIN_ROLE', 'USER_ROLE' ]),
+  // check( 'role', 'No es un rol válido' ).isIn([ 'ADMIN_ROLE', 'USER_ROLE' ]),
+  check( 'role' ).custom( async( role = '' ) => {
+    const existRole = await Role.findOne({ role });
+
+    if ( !existRole ) {
+      throw new Error( `El rol ${ role } no está registrado en la DB!!` );
+    };
+  }),
   validateFields,
 ], usersPost );
 
