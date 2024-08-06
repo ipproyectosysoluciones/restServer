@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
+import { validateFields } from '../middleware/validate-fields.js';
 import { 
   usersDelete,
   usersGet,
@@ -13,8 +14,22 @@ const router = Router();
 // Define the routes
 router.get( '/', usersGet );
 
+/**
+ * @route POST /api/users
+ * @description Crear un nuevo usuario
+ * @access Public
+ * @param { string } name - Nombre del usuario.
+ * @param { string } email - Email del usuario.
+ * @param { string } password - Password del usuario.
+ * @param { string } role - Rol del usuario ('ADMIN_ROLE' o 'USER_ROLE').
+ * @returns { Object } - Usuario creado.
+ */
 router.post( '/', [
+  check( 'name', 'El nombre es obligatorio' ).not().isEmpty(),
+  check( 'password', 'El password debe de tener más de 6 carácteres' ).isLength({ min: 6 }),
   check( 'email', 'El email no es válido' ).isEmail(),
+  check( 'role', 'No es un rol válido' ).isIn([ 'ADMIN_ROLE', 'USER_ROLE' ]),
+  validateFields,
 ], usersPost );
 
 router.put( '/:id', usersPut );

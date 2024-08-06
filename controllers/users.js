@@ -1,6 +1,5 @@
 import { response, request } from 'express';
 import bcryptjs from 'bcryptjs';
-import { validationResult } from 'express-validator';
 import User from '../models/user.js';
 
 
@@ -31,14 +30,6 @@ const usersGet = ( req = request, res = response ) => {
  * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando la solicitud se completa.
  */
 const usersPost = async( req = request, res = response ) => {
-  // Validate the request data
-  const errors = validationResult( req );
-
-  if ( !errors.isEmpty() ) {
-    return res.status( 400 ).json({ 
-      msg: errors.array(), 
-    });
-  };
 
   // Validate the data
   const { name, email, password, role } = req.body;
@@ -110,4 +101,4 @@ export {
   usersPatch,
   usersPost,
   usersPut,
- };
+};
