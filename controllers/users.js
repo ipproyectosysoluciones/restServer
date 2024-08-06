@@ -1,4 +1,5 @@
 import { response, request } from 'express';
+import bcryptjs from 'bcryptjs';
 import User from '../models/user.js';
 
 
@@ -29,13 +30,20 @@ const usersGet = ( req = request, res = response ) => {
  * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando la solicitud se completa.
  */
 const usersPost = async( req = request, res = response ) => {
-  const body = req.body;
-  const user = new User( body );
+  const { name, email, password, role } = req.body;
+  const user = new User({ name, email, password, role });
 
+  // Check if the email exists
+
+
+  // Hash the password
+  const salt = bcryptjs.genSaltSync( 10 );
+  user.password = bcryptjs.hashSync( password, salt );
+
+  // Save the user to the database
   await user.save();
 
   res.json({
-    msg: 'post API - controller',
     user,
   });
 };
