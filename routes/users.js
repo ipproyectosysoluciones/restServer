@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { check } from 'express-validator';
 import { 
   usersDelete,
   usersGet,
@@ -12,7 +13,9 @@ const router = Router();
 // Define the routes
 router.get( '/', usersGet );
 
-router.post( '/', usersPost );
+router.post( '/', [
+  check( 'email', 'El email no es válido' ).isEmail(),
+], usersPost );
 
 router.put( '/:id', usersPut );
 

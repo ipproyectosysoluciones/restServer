@@ -1,5 +1,6 @@
 import { response, request } from 'express';
 import bcryptjs from 'bcryptjs';
+import { validationResult } from 'express-validator';
 import User from '../models/user.js';
 
 
@@ -25,16 +26,32 @@ const usersGet = ( req = request, res = response ) => {
 /**
  * @name usersPost
  * @description Controlador para manejar las solicitudes POST y crear un nuevo usuario en la base de datos.
- * @param {*} req Objeto de solicitud que contiene la información del cliente, como los datos enviados en el cuerpo de la solicitud (req.body).
+ * @param {*} req Objeto de solicitud que contiene la información enviada por el cliente.
  * @param {*} res Objeto de respuesta que se utiliza para enviar la respuesta de vuelta al cliente.
  * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando la solicitud se completa.
  */
 const usersPost = async( req = request, res = response ) => {
+  // Validate the request data
+  const errors = validationResult( req );
+
+  if ( !errors.isEmpty() ) {
+    return res.status( 400 ).json({ 
+      msg: errors.array(), 
+    });
+  };
+
+  // Validate the data
   const { name, email, password, role } = req.body;
   const user = new User({ name, email, password, role });
 
   // Check if the email exists
+  const existEmail = await User.findOne({ email });
 
+  if ( existEmail ) {
+    return res.status( 400 ).json({ 
+      msg: 'El email ya está registrado', 
+    });
+  };
 
   // Hash the password
   const salt = bcryptjs.genSaltSync( 10 );
