@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-import Role from '../models/role.js';
 import { validateFields } from '../middleware/validate-fields.js';
+import { isRoleValid } from '../helpers/db-validators.js';
 import { 
   usersDelete,
   usersGet,
   usersPatch,
   usersPost,
   usersPut,
- } from '../controllers/users.js';
+} from '../controllers/users.js';
 
 const router = Router();
 
@@ -30,13 +30,7 @@ router.post( '/', [
   check( 'password', 'El password debe de tener más de 6 carácteres' ).isLength({ min: 6 }),
   check( 'email', 'El email no es válido' ).isEmail(),
   // check( 'role', 'No es un rol válido' ).isIn([ 'ADMIN_ROLE', 'USER_ROLE' ]),
-  check( 'role' ).custom( async( role = '' ) => {
-    const existRole = await Role.findOne({ role });
-
-    if ( !existRole ) {
-      throw new Error( `El rol ${ role } no está registrado en la DB!!` );
-    };
-  }),
+  check( 'role' ).custom( isRoleValid ),
   validateFields,
 ], usersPost );
 
