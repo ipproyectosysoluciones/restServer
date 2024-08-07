@@ -53,13 +53,20 @@ const usersPost = async( req = request, res = response ) => {
  * @param {*} req 
  * @param {*} res 
  */
-const usersPut = ( req, res = response ) => {
+const usersPut = async( req = request, res = response ) => {
   const { id } = req.params;
+  const { _id, password, google, email, ...rest } = req.body;
 
-  res.json({
-    msg: 'put API - controller',
-    id,
-  });
+  // TODO: VAlidar contra DB
+  if ( password ) {
+    // Hash the password
+  const salt = bcryptjs.genSaltSync( 10 );
+  rest.password = bcryptjs.hashSync( password, salt );
+  };
+
+  const user = await User.findByIdAndUpdate( id, rest );
+
+  res.json( user );
 };
 
 /**

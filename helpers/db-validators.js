@@ -30,7 +30,23 @@ const existEmail = async( email = '' ) => {
   };
 };
 
+/**
+ * @name userIdExist
+ * @description Valida si un ID de usuario existe en la base de datos.
+ * @param { string } id - ID del usuario a validar.
+ * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando el ID de usuario existe en la base de datos.
+ */
+const userIdExist = async( id ) => {
+  // Check if the ID exists
+  const userExist = await User.findById( id );
+
+  if ( !userExist ) {
+    throw new Error( `El id ${ id }, no existe!!` );
+  };
+};
+
 export { 
-  existEmail,
+  existEmail, 
+  userIdExist,
   isRoleValid, 
 };
