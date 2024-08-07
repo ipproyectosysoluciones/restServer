@@ -35,6 +35,17 @@ router.post( '/', [
   validateFields,
 ], usersPost );
 
+/**
+ * @route PUT /api/users/:id
+ * @description Actualizar un usuario
+ * @access Privado
+ * @param { string } id - ID del usuario a actualizar.
+ * @param { string } name - Nuevo nombre del usuario.
+ * @param { string } email - Nuevo email del usuario.
+ * @param { string } password - Nuevo password del usuario.
+ * @param { string } role - Nuevo rol del usuario. Debe ser 'ADMIN_ROLE' o 'USER_ROLE' o 'SALES_ROLE'.
+ * @returns { Object } - Usuario actualizado.
+ */
 router.put( '/:id', [
   check( 'id', 'No es un ID válido' ).isMongoId(),
   check( 'id' ).custom( userIdExist ),

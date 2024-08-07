@@ -5,20 +5,23 @@ import User from '../models/user.js';
 
 /**
  * @name usersGet
- * @description 
- * @param {*} req 
- * @param {*} res 
+ * @description Controlador para manejar las solicitudes GET y obtener todos los usuarios en la base de datos.
+ * @param {*} req Objeto de solicitud que contiene la información enviada por el cliente.
+ * @param {*} res Objeto de respuesta que se utiliza para enviar la respuesta de vuelta al cliente.
  */
-const usersGet = ( req = request, res = response ) => {
-  const { q, name = 'No name', apikey, page = 1, limit } = req.query;
+const usersGet = async( req = request, res = response ) => {
+  const { limit = 5, from = 0 } = req.query;
+  const query = { state: true };
+
+  // Find all the users and paginate them
+  const [ total, users ] = await Promise.all([
+    User.countDocuments( query ),
+    User.find( query ).skip( Number( from )).limit( Number( limit )),
+  ]);
 
   res.json({
-    msg: 'get API - controller',
-    q,
-    name,
-    apikey,
-    page,
-    limit,
+    total,
+    users,
   });
 };
 
@@ -49,9 +52,10 @@ const usersPost = async( req = request, res = response ) => {
 
 /**
  * @name usersPut
- * @description
- * @param {*} req 
- * @param {*} res 
+ * @description Controlador para manejar las solicitudes PUT y actualizar un usuario en la base de datos.
+ * @param {*} req Objeto de solicitud que contiene la información enviada por el cliente.
+ * @param {*} res Objeto de respuesta que se utiliza para enviar la respuesta de vuelta al cliente.
+ * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando la solicitud se completa.
  */
 const usersPut = async( req = request, res = response ) => {
   const { id } = req.params;
