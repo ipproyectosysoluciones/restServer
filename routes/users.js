@@ -13,6 +13,14 @@ import {
 const router = Router();
 
 // Define the routes
+/**
+ * @route GET /api/users
+ * @description Obtener todos los usuarios
+ * @access Public
+ * @returns { Object } - Lista de usuarios.
+ * @returns { number } - Total de usuarios.
+ * @returns { Array } - Array de objetos con los datos de cada usuario.
+ */
 router.get( '/', usersGet );
 
 /**
@@ -55,6 +63,18 @@ router.put( '/:id', [
 
 router.patch( '/', usersPatch );
 
-router.delete( '/', usersDelete );
+/**
+ * @route DELETE /api/users/:id
+ * @description Eliminar un usuario
+ * @access Privado
+ * @param { string } id - ID del usuario a eliminar.
+ * @returns { Object } - Mensaje de confirmación de eliminación.
+ * @returns { string } - Mensaje de confirmación de eliminación.
+ */
+router.delete( '/:id', [
+  check( 'id', 'No es un ID válido' ).isMongoId(),
+  check( 'id' ).custom( userIdExist ),
+  validateFields,
+], usersDelete );
 
 export default router;

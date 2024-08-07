@@ -61,7 +61,7 @@ const usersPut = async( req = request, res = response ) => {
   const { id } = req.params;
   const { _id, password, google, email, ...rest } = req.body;
 
-  // TODO: VAlidar contra DB
+  // TODO: Válidar contra DB
   if ( password ) {
     // Hash the password
   const salt = bcryptjs.genSaltSync( 10 );
@@ -87,14 +87,16 @@ const usersPatch = ( req, res = response ) => {
 
 /**
  * @name usersDelete
- * @description
- * @param {*} req 
- * @param {*} res 
+ * @description Controlador para manejar las solicitudes DELETE y eliminar un usuario de la base de datos.
+ * @param {*} req Objeto de solicitud que contiene la información enviada por el cliente.
+ * @param {*} res Objeto de respuesta que se utiliza para enviar la respuesta de vuelta al cliente.
+ * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando la solicitud se completa.
  */
-const usersDelete = ( req, res = response ) => {
-  res.json({
-    msg: 'delete API - controller',
-  });
+const usersDelete = async( req = request, res = response ) => {
+  const { id } = req.params;
+  
+  const user = await User.findByIdAndUpdate( id, { state: false } );
+  res.json( user );
 }
 
 export { 
