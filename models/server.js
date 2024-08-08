@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import usersRoutes from '../routes/users.js';
+import authRoutes from '../routes/auth.js';
 import { dbConnection } from '../database/config.js';
 
 /**
@@ -23,6 +24,7 @@ class Server {
     this.port = process.env.PORT;
 
     // Paths
+    this.authPath = '/api/auth';
     this.usersPath = '/api/users';
 
     // Connect to DB
@@ -69,6 +71,7 @@ class Server {
    * @returns { void } No devuelve nada.
    */
   routes() {
+    this.app.use( this.authPath, authRoutes );
     this.app.use( this.usersPath, usersRoutes );
   };
 
