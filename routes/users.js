@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-import { validateFields } from '../middleware/validate-fields.js';
-import { validateJWT } from '../middleware/validate-jwt.js';
-import { hasRole, isAdminRole } from '../middleware/validate-roles.js';
+import { 
+  hasRole, 
+  isAdminRole,
+  validateFields, 
+  validateJWT, 
+} from '../middleware/index.js';
 import { existEmail, userIdExist, isRoleValid } from '../helpers/db-validators.js';
 import { 
   usersDelete,

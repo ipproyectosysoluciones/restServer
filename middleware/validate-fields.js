@@ -9,7 +9,7 @@ import { validationResult } from 'express-validator';
  * @param {*} next
  * @returns 
  */
-const validateFields = ( req, res, next ) => {
+export const validateFields = ( req, res, next ) => {
   // Validate the request data
   const errors = validationResult( req );
 
@@ -22,6 +22,3 @@ const validateFields = ( req, res, next ) => {
   next();
 };
 
-export {
-  validateFields,
-};

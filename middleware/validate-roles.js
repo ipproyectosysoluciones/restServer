@@ -8,7 +8,7 @@ import { request, response } from 'express';
  * @param {*} next 
  * @returns 
  */
-const isAdminRole = ( req = request, res = response, next ) => {
+export const isAdminRole = ( req = request, res = response, next ) => {
 
   if ( !req.user ) {
     return res.status( 500 ).json({
@@ -36,7 +36,7 @@ const isAdminRole = ( req = request, res = response, next ) => {
  * @param {*} next
  * @returns
  */
-const hasRole = ( ...roles ) => {
+export const hasRole = ( ...roles ) => {
   return ( req = request, res = response, next ) => {
 
     if ( !req.user ) {
@@ -55,7 +55,3 @@ const hasRole = ( ...roles ) => {
   };
 };
 
-export {
-  isAdminRole, 
-  hasRole,
-};
