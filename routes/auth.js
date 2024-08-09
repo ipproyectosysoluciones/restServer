@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-import { validateFields } from '../middleware/validate-fields.js';
-import { login } from '../controllers/auth.js';
+import { validateFields } from '../middleware/index.js';
+import { googleSigIn, login } from '../controllers/auth.js';
 
 const router = Router();
 
@@ -18,5 +18,10 @@ router.post( '/login', [
   check( 'password', 'La contraseña es obligatoria' ).not().isEmpty(),
   validateFields,
 ], login );
+
+router.post( '/google', [
+  check( 'id_token', 'El Token de Google es necesario' ).not().isEmpty(),
+  validateFields,
+], googleSigIn );
 
 export default router;
