@@ -5,10 +5,10 @@ import User from '../models/user.js';
 /**
  * @name validateJWT
  * @description Valida el token JWT en la cabecera de la petición.
-
- * @param {*} res 
- * @param {*} req
- * @returns { void } Devuelve el controlador para la siguiente petición.
+ * @param { string } token - Token JWT a validar.
+ * @param { Request } req - Objeto de solicitud que contiene la información enviada por el cliente.
+ * @param { Response } res - Objeto de respuesta que se utiliza para enviar la respuesta de vuelta al cliente.
+ * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando la validación del token se completa.
  */
 const validateJWT = async( req = request, res = response, next ) => {
 
