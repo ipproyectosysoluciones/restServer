@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { check } from 'express-validator';
 import { validateFields } from '../middleware/validate-fields.js';
 import { validateJWT } from '../middleware/validate-jwt.js';
-import { isAdminRole } from '../middleware/validate-roles.js';
+import { hasRole, isAdminRole } from '../middleware/validate-roles.js';
 import { existEmail, userIdExist, isRoleValid } from '../helpers/db-validators.js';
 import { 
   usersDelete,
@@ -75,7 +75,8 @@ router.patch( '/', usersPatch );
  */
 router.delete( '/:id', [
   validateJWT,
-  isAdminRole,
+  // isAdminRole,
+  hasRole( 'ADMIN_ROLE', 'SALES_ROLE' ),
   check( 'id', 'No es un ID válido' ).isMongoId(),
   check( 'id' ).custom( userIdExist ),
   validateFields,
