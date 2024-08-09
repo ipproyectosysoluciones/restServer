@@ -19,6 +19,14 @@ router.post( '/login', [
   validateFields,
 ], login );
 
+/**
+ * @route POST /api/auth/google
+ * @description Autenticar un usuario con Google
+ * @access Publica
+ * @returns { Object } - Token de autenticación.
+ * @returns { string } - Token de autenticación. 
+ * @todo Validar que el token de Google sea válido y que el email corresponda a un usuario registrado en la base de datos.
+ */
 router.post( '/google', [
   check( 'id_token', 'El Token de Google es necesario' ).not().isEmpty(),
   validateFields,

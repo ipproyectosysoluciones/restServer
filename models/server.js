@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import usersRoutes from '../routes/users.js';
 import authRoutes from '../routes/auth.js';
+import categoryRoutes from '../routes/category.js';
+import usersRoutes from '../routes/users.js';
 import { dbConnection } from '../database/config.js';
 
 /**
@@ -24,8 +25,11 @@ class Server {
     this.port = process.env.PORT;
 
     // Paths
-    this.authPath = '/api/auth';
-    this.usersPath = '/api/users';
+    this.paths = {
+      auth: '/api/auth', 
+      category: '/api/category', 
+      users: '/api/users',
+    };
 
     // Connect to DB
     this.connectDB();
@@ -67,12 +71,13 @@ class Server {
   // Define the routes
   /**
    * @name routes
-   * @description Agrega las rutas necesarias para el funcionamiento del server.
+   * @description Define las rutas para las diferentes endpoints.
    * @returns { void } No devuelve nada.
    */
   routes() {
-    this.app.use( this.authPath, authRoutes );
-    this.app.use( this.usersPath, usersRoutes );
+    this.app.use( this.paths.auth, authRoutes );
+    this.app.use( this.paths.category, categoryRoutes );
+    this.app.use( this.paths.users, usersRoutes );
   };
 
   // Start the server
