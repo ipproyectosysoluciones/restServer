@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
 import { validateFields } from '../middleware/validate-fields.js';
+import { validateJWT } from '../middleware/validate-jwt.js';
 import { existEmail, userIdExist, isRoleValid } from '../helpers/db-validators.js';
 import { 
   usersDelete,
@@ -72,6 +73,7 @@ router.patch( '/', usersPatch );
  * @returns { string } - Mensaje de confirmación de eliminación.
  */
 router.delete( '/:id', [
+  validateJWT,
   check( 'id', 'No es un ID válido' ).isMongoId(),
   check( 'id' ).custom( userIdExist ),
   validateFields,

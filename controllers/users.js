@@ -94,10 +94,14 @@ const usersPatch = ( req, res = response ) => {
  */
 const usersDelete = async( req = request, res = response ) => {
   const { id } = req.params;
+  const uid = req.uid;
   
   const user = await User.findByIdAndUpdate( id, { state: false } );
-  res.json( user );
-}
+  res.json({ 
+    user, 
+    uid, 
+  });
+};
 
 export { 
   usersDelete,
