@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import authRoutes from '../routes/auth.js';
-import categoryRoutes from '../routes/category.js';
+import categoriesRoutes from '../routes/categories.js';
 import usersRoutes from '../routes/users.js';
 import { dbConnection } from '../database/config.js';
 
@@ -27,7 +27,7 @@ class Server {
     // Paths
     this.paths = {
       auth: '/api/auth', 
-      category: '/api/category', 
+      categories: '/api/categories', 
       users: '/api/users',
     };
 
@@ -76,7 +76,7 @@ class Server {
    */
   routes() {
     this.app.use( this.paths.auth, authRoutes );
-    this.app.use( this.paths.category, categoryRoutes );
+    this.app.use( this.paths.categories, categoriesRoutes );
     this.app.use( this.paths.users, usersRoutes );
   };
 

@@ -1,6 +1,6 @@
 import { request, response } from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../models/user.js';
+import { User } from '../models/index.js';
 
 /**
  * @name validateJWT

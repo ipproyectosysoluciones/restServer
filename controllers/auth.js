@@ -1,6 +1,6 @@
 import { request, response } from 'express';
 import bcryptjs from 'bcryptjs';
-import User from '../models/user.js';
+import { User } from '../models/index.js';
 import { generateJWT } from '../helpers/generate-jwt.js';
 import { googleVerify } from '../helpers/google-verify.js';
 

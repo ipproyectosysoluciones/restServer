@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import Server from './models/server.js';
+import { Server } from './models/index.js';
 
 // Load environment variables from.env file
 dotenv.config();
