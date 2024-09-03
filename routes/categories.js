@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-import { validateFields } from '../middleware/index.js';
+import { validateFields, validateJWT } from '../middleware/index.js';
+import { createCategory } from '../controllers/categories.js';
 
 const router = Router();
 
@@ -12,9 +13,11 @@ router.get( '/:id', ( req, res ) => {
   res.json({ msg: 'Get by ID' });
 });
 
-router.post( '/', ( req, res ) => {
-  res.json({ msg: 'Post' });
-});
+router.post( '/', [ 
+  validateJWT, 
+  check( 'name', 'El nombre es obligatorio' ).not().isEmpty(),
+  validateFields,
+], createCategory );
 
 router.put( '/:id', ( req, res ) => {
   res.json({ msg: 'Put' });
