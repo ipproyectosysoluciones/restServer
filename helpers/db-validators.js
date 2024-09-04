@@ -1,4 +1,4 @@
-import { Role, User } from '../models/index.js';
+import { Role, User, Category } from '../models/index.js';
 
 /**
  * @name isRoleValid
@@ -44,7 +44,24 @@ const userIdExist = async( id ) => {
   };
 };
 
+
+/**
+ * @name categoryIdExit
+ * @description Valida si un ID de categoría existe en la base de datos.
+ * @param { string } id - ID de la categoría a validar.
+ * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando el ID de categoría existe en la base de datos.
+ */
+const categoryIdExit = async( id ) => {
+  // Check if the ID exists
+  const categoryExist = await Category.findById( id );
+
+  if ( !categoryExist ) {
+    throw new Error( `La categoría con id ${ id }, no existe!!` );
+  };
+};
+
 export { 
+  categoryIdExit,
   existEmail, 
   userIdExist,
   isRoleValid, 

@@ -1,17 +1,24 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-import { validateFields, validateJWT } from '../middleware/index.js';
-import { createCategory } from '../controllers/categories.js';
+import { isAdminRole, validateFields, validateJWT } from '../middleware/index.js';
+import { 
+  createCategory, 
+  deleteCategory, 
+  getCategories, 
+  getCategory, 
+  updateCategory,
+ } from '../controllers/categories.js';
+import { categoryIdExit } from '../helpers/db-validators.js';
 
 const router = Router();
 
-router.get( '/', ( req, res ) => {
-  res.json({ msg: 'Get' });
-});
+router.get( '/', getCategories );
 
-router.get( '/:id', ( req, res ) => {
-  res.json({ msg: 'Get by ID' });
-});
+router.get( '/:id', [
+  check( 'id', 'No es un ID de Mongo' ).isMongoId(),
+  check( 'id' ).custom( categoryIdExit ),
+  validateFields,
+], getCategory );
 
 router.post( '/', [ 
   validateJWT, 
@@ -19,12 +26,20 @@ router.post( '/', [
   validateFields,
 ], createCategory );
 
-router.put( '/:id', ( req, res ) => {
-  res.json({ msg: 'Put' });
-});
+router.put( '/:id', [
+  validateJWT, 
+  check( 'name', 'El nombre es obligatorio' ).not().isEmpty(),
+  check( 'id' ).custom( categoryIdExit ),
+  check( 'id', 'No es un ID de Mongo' ).isMongoId(),
+  validateFields,
+], updateCategory );
 
-router.delete( '/:id', ( req, res ) => {
-  res.json({ msg: 'Delete' });
-});
+router.delete( '/:id', [
+  validateJWT, 
+  isAdminRole, 
+  check( 'id', 'No es un ID de Mongo' ).isMongoId(),
+  check( 'id' ).custom( categoryIdExit ),
+  validateFields,
+], deleteCategory );
 
 export default router;
