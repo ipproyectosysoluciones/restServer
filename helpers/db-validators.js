@@ -1,4 +1,4 @@
-import { Role, User, Category } from '../models/index.js';
+import { Role, User, Category, Product } from '../models/index.js';
 
 /**
  * @name isRoleValid
@@ -61,4 +61,19 @@ const categoryIdExit = async (id) => {
   }
 };
 
-export { categoryIdExit, existEmail, userIdExist, isRoleValid };
+/**
+ * @name productIdExit
+ * @description Valida si un ID de producto existe en la base de datos.
+ * @param { string } id - ID del producto a validar.
+ * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando el ID de producto existe en la base de datos.
+ */
+const productIdExit = async (id) => {
+  // Check if the ID exists
+  const productExist = await Product.findById(id);
+
+  if (!productExist) {
+    throw new Error(`El producto con id ${id}, no existe!!`);
+  }
+};
+
+export { categoryIdExit, existEmail, productIdExit, userIdExist, isRoleValid };
