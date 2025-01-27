@@ -8,17 +8,17 @@ const client = new OAuth2Client();
  * @param { string } token - Token de Google a verificar.
  * @returns { Promise<Object> } Devuelve la información del usuario verificada.
  */
-async function googleVerify( token = '' ) {
+async function googleVerify(token = '') {
   const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_ID,  
-      // Specify the CLIENT_ID of the app that accesses the backend
-      // Or, if multiple clients access the backend:
-      //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+    idToken: token,
+    audience: process.env.GOOGLE_ID,
+    // Specify the CLIENT_ID of the app that accesses the backend
+    // Or, if multiple clients access the backend:
+    //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
   });
   const { email, name, picture } = ticket.getPayload();
 
-  return{
+  return {
     email,
     name,
     img: picture,

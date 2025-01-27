@@ -2,21 +2,20 @@ import { response, request } from 'express';
 import bcryptjs from 'bcryptjs';
 import { User } from '../models/index.js';
 
-
 /**
  * @name usersGet
  * @description Controlador para manejar las solicitudes GET y obtener todos los usuarios en la base de datos.
  * @param {*} req Objeto de solicitud que contiene la información enviada por el cliente.
  * @param {*} res Objeto de respuesta que se utiliza para enviar la respuesta de vuelta al cliente.
  */
-const usersGet = async( req = request, res = response ) => {
+const usersGet = async (req = request, res = response) => {
   const { limit = 5, from = 0 } = req.query;
   const query = { state: true };
 
   // Find all the users and paginate them
-  const [ total, users ] = await Promise.all([
-    User.countDocuments( query ),
-    User.find( query ).skip( Number( from )).limit( Number( limit )),
+  const [total, users] = await Promise.all([
+    User.countDocuments(query),
+    User.find(query).skip(Number(from)).limit(Number(limit)),
   ]);
 
   res.json({
@@ -32,15 +31,14 @@ const usersGet = async( req = request, res = response ) => {
  * @param {*} res Objeto de respuesta que se utiliza para enviar la respuesta de vuelta al cliente.
  * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando la solicitud se completa.
  */
-const usersPost = async( req = request, res = response ) => {
-
+const usersPost = async (req = request, res = response) => {
   // Validate the data
   const { name, email, password, role } = req.body;
   const user = new User({ name, email, password, role });
 
   // Hash the password
-  const salt = bcryptjs.genSaltSync( 10 );
-  user.password = bcryptjs.hashSync( password, salt );
+  const salt = bcryptjs.genSaltSync(10);
+  user.password = bcryptjs.hashSync(password, salt);
 
   // Save the user to the database
   await user.save();
@@ -57,29 +55,29 @@ const usersPost = async( req = request, res = response ) => {
  * @param {*} res Objeto de respuesta que se utiliza para enviar la respuesta de vuelta al cliente.
  * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando la solicitud se completa.
  */
-const usersPut = async( req = request, res = response ) => {
+const usersPut = async (req = request, res = response) => {
   const { id } = req.params;
   const { _id, password, google, email, ...rest } = req.body;
 
   // TODO: Válidar contra DB
-  if ( password ) {
+  if (password) {
     // Hash the password
-  const salt = bcryptjs.genSaltSync( 10 );
-  rest.password = bcryptjs.hashSync( password, salt );
-  };
+    const salt = bcryptjs.genSaltSync(10);
+    rest.password = bcryptjs.hashSync(password, salt);
+  }
 
-  const user = await User.findByIdAndUpdate( id, rest );
+  const user = await User.findByIdAndUpdate(id, rest);
 
-  res.json( user );
+  res.json(user);
 };
 
 /**
  * @name
  * @description
- * @param {*} req 
- * @param {*} res 
+ * @param {*} req
+ * @param {*} res
  */
-const usersPatch = ( req, res = response ) => {
+const usersPatch = (req, res = response) => {
   res.json({
     msg: 'patch API - controller',
   });
@@ -92,18 +90,12 @@ const usersPatch = ( req, res = response ) => {
  * @param {*} res Objeto de respuesta que se utiliza para enviar la respuesta de vuelta al cliente.
  * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando la solicitud se completa.
  */
-const usersDelete = async( req = request, res = response ) => {
+const usersDelete = async (req = request, res = response) => {
   const { id } = req.params;
-  
-  const user = await User.findByIdAndUpdate( id, { state: false } );
 
-  res.json( user );
+  const user = await User.findByIdAndUpdate(id, { state: false });
+
+  res.json(user);
 };
 
-export { 
-  usersDelete,
-  usersGet,
-  usersPatch,
-  usersPost,
-  usersPut,
-};
+export { usersDelete, usersGet, usersPatch, usersPost, usersPut };

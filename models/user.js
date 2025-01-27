@@ -8,25 +8,25 @@ import { Schema, model } from 'mongoose';
 const UserSchema = Schema({
   name: {
     type: String,
-    required: [ true, 'El nombre es Obligatorio' ],
+    required: [true, 'El nombre es Obligatorio'],
   },
   email: {
     type: String,
-    required: [ true, 'El email es Obligatorio' ],
+    required: [true, 'El email es Obligatorio'],
     unique: true,
   },
   password: {
     type: String,
-    required: [ true, 'La contraseña es Obligatorio' ],
+    required: [true, 'La contraseña es Obligatorio'],
   },
   img: {
     type: String,
   },
   role: {
     type: String,
-    required: [ true, 'El rol es Obligatorio' ],
+    required: [true, 'El rol es Obligatorio'],
     default: 'USER_ROLE',
-    emun: [ 'ADMIN_ROLE', 'USER_ROLE', 'SALES_ROLE' ],
+    emun: ['ADMIN_ROLE', 'USER_ROLE', 'SALES_ROLE'],
   },
   state: {
     type: Boolean,
@@ -44,4 +44,4 @@ UserSchema.methods.toJSON = function () {
   return user;
 };
 
-export default model( 'User', UserSchema );
+export default model('User', UserSchema);

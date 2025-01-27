@@ -1,6 +1,5 @@
 import { Schema, model } from 'mongoose';
 
-
 /**
  * @name RoleShema
  * @description Esquema de rol para MongoDB utilizando Mongoose.
@@ -9,8 +8,8 @@ import { Schema, model } from 'mongoose';
 const RoleSchema = Schema({
   role: {
     type: String,
-    required: [ true, 'El rol es obligatorio' ],
+    required: [true, 'El rol es obligatorio'],
   },
 });
 
-export default model( 'Role', RoleSchema );
+export default model('Role', RoleSchema);

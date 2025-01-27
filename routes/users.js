@@ -1,13 +1,17 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-import { 
-  hasRole, 
+import {
+  hasRole,
   isAdminRole,
-  validateFields, 
-  validateJWT, 
+  validateFields,
+  validateJWT,
 } from '../middleware/index.js';
-import { existEmail, userIdExist, isRoleValid } from '../helpers/db-validators.js';
-import { 
+import {
+  existEmail,
+  userIdExist,
+  isRoleValid,
+} from '../helpers/db-validators.js';
+import {
   usersDelete,
   usersGet,
   usersPatch,
@@ -26,7 +30,7 @@ const router = Router();
  * @returns { number } - Total de usuarios.
  * @returns { Array } - Array de objetos con los datos de cada usuario.
  */
-router.get( '/', usersGet );
+router.get('/', usersGet);
 
 /**
  * @route POST /api/users
@@ -34,19 +38,25 @@ router.get( '/', usersGet );
  * @access Public
  * @param { string } name - Nombre del usuario.
  * @param { string } email - Email del usuario.
- * @param { string } password - Password del usuario. 
+ * @param { string } password - Password del usuario.
  * @param { string } role - Rol del usuario. Debe ser 'ADMIN_ROLE' o 'USER_ROLE' o 'SALES_ROLE'.
  * @returns { Object } - Usuario creado.
  */
-router.post( '/', [
-  check( 'name', 'El nombre es obligatorio' ).not().isEmpty(),
-  check( 'password', 'El password debe de tener más de 6 carácteres' ).isLength({ min: 6 }),
-  check( 'email', 'El email no es válido' ).isEmail(),
-  check( 'email' ).custom( existEmail ),
-  // check( 'role', 'No es un rol válido' ).isIn([ 'ADMIN_ROLE', 'USER_ROLE' ]),
-  check( 'role' ).custom( isRoleValid ),
-  validateFields,
-], usersPost );
+router.post(
+  '/',
+  [
+    check('name', 'El nombre es obligatorio').not().isEmpty(),
+    check('password', 'El password debe de tener más de 6 carácteres').isLength(
+      { min: 6 },
+    ),
+    check('email', 'El email no es válido').isEmail(),
+    check('email').custom(existEmail),
+    // check( 'role', 'No es un rol válido' ).isIn([ 'ADMIN_ROLE', 'USER_ROLE' ]),
+    check('role').custom(isRoleValid),
+    validateFields,
+  ],
+  usersPost,
+);
 
 /**
  * @route PUT /api/users/:id
@@ -59,14 +69,18 @@ router.post( '/', [
  * @param { string } role - Nuevo rol del usuario. Debe ser 'ADMIN_ROLE' o 'USER_ROLE' o 'SALES_ROLE'.
  * @returns { Object } - Usuario actualizado.
  */
-router.put( '/:id', [
-  check( 'id', 'No es un ID válido' ).isMongoId(),
-  check( 'id' ).custom( userIdExist ),
-  check( 'role' ).custom( isRoleValid ),
-  validateFields,
-], usersPut );
+router.put(
+  '/:id',
+  [
+    check('id', 'No es un ID válido').isMongoId(),
+    check('id').custom(userIdExist),
+    check('role').custom(isRoleValid),
+    validateFields,
+  ],
+  usersPut,
+);
 
-router.patch( '/', usersPatch );
+router.patch('/', usersPatch);
 
 /**
  * @route DELETE /api/users/:id
@@ -76,13 +90,17 @@ router.patch( '/', usersPatch );
  * @returns { Object } - Mensaje de confirmación de eliminación.
  * @returns { string } - Mensaje de confirmación de eliminación.
  */
-router.delete( '/:id', [
-  validateJWT,
-  // isAdminRole,
-  hasRole( 'ADMIN_ROLE', 'SALES_ROLE' ),
-  check( 'id', 'No es un ID válido' ).isMongoId(),
-  check( 'id' ).custom( userIdExist ),
-  validateFields,
-], usersDelete );
+router.delete(
+  '/:id',
+  [
+    validateJWT,
+    // isAdminRole,
+    hasRole('ADMIN_ROLE', 'SALES_ROLE'),
+    check('id', 'No es un ID válido').isMongoId(),
+    check('id').custom(userIdExist),
+    validateFields,
+  ],
+  usersDelete,
+);
 
 export default router;

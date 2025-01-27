@@ -1,0 +1,14 @@
+node_modules
+dist
+.env
+.vscode
+.git
+.gitignore
+.prettierrc
+.prettierignore
+package.json
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+*.html
+README.md

@@ -10,35 +10,33 @@ import { User } from '../models/index.js';
  * @param { Response } res - Objeto de respuesta que se utiliza para enviar la respuesta de vuelta al cliente.
  * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando la validación del token se completa.
  */
-export const validateJWT = async( req = request, res = response, next ) => {
+export const validateJWT = async (req = request, res = response, next) => {
+  const token = req.header('x-token');
 
-  const token = req.header( 'x-token' );
-
-  if ( !token ) {
-    return res.status( 401 ).json({ 
-      msg: 'No hay token en la peticion - x-token' 
+  if (!token) {
+    return res.status(401).json({
+      msg: 'No hay token en la peticion - x-token',
     });
-  };
+  }
 
   try {
-    const { uid } = jwt.verify( token, process.env.SECRET_JWT_SEED );
+    const { uid } = jwt.verify(token, process.env.SECRET_JWT_SEED);
 
-    const user = await User.findById( uid );
+    const user = await User.findById(uid);
 
-    if ( !user || !user.state ) {
-      return res.status( 401 ).json({ 
+    if (!user || !user.state) {
+      return res.status(401).json({
         msg: 'Token no válido - estado: false o  user: eliminado de la DB',
       });
-    };
+    }
 
     req.user = user;
-    
-    next();
-  } catch ( error ) {
-    console.log( error );
-    return res.status( 401 ).json({ 
-      msg: 'Token no válido' 
-    });
-  };
-};
 
+    next();
+  } catch (error) {
+    console.log(error);
+    return res.status(401).json({
+      msg: 'Token no válido',
+    });
+  }
+};

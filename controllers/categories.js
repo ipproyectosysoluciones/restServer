@@ -9,22 +9,21 @@ import { Category } from '../models/index.js';
  * @param { Object } res: el objeto de respuesta para devolver el recuento total y las categorías paginadas.
  * @returns { Promise<void> }: una promesa que se resuelve con el recuento total y las categorías paginadas en la respuesta.
  */
-const getCategories = async( req = request, res = response ) => {
-
+const getCategories = async (req = request, res = response) => {
   // Get params from query
   const { limit = 5, from = 0 } = req.query;
   const query = { state: true };
 
   // Find all the categories and paginate them
-  const [ total, categories ] = await Promise.all([
-    Category.countDocuments( query ),
-    Category.find( query )
-    .populate( 'user', 'name' )
-    .skip( Number( from ))
-    .limit( Number( limit )),
+  const [total, categories] = await Promise.all([
+    Category.countDocuments(query),
+    Category.find(query)
+      .populate('user', 'name')
+      .skip(Number(from))
+      .limit(Number(limit)),
   ]);
 
-  res.status( 200 ).json({
+  res.status(200).json({
     total,
     categories,
   });
@@ -38,13 +37,12 @@ const getCategories = async( req = request, res = response ) => {
  * @param {Object} res: el objeto de respuesta utilizado para enviar la categoría recuperada como una respuesta JSON.
  * @returns {Promise<void>}: una promesa que se resuelve cuando la categoría se recupera correctamente y se envía como una respuesta.
  */
-const getCategory = async(  req = request, res = response ) => {
-  
+const getCategory = async (req = request, res = response) => {
   const { id } = req.params;
   // Find the category by id
-  const category = await Category.findById( id ).populate( 'user', 'name' );
+  const category = await Category.findById(id).populate('user', 'name');
 
-  res.status( 200 ).json( category );
+  res.status(200).json(category);
 };
 
 /**
@@ -55,16 +53,15 @@ const getCategory = async(  req = request, res = response ) => {
  * @param { Object } res - El objeto de respuesta para enviar el resultado.
  * @returns { Object } La categoría creada en mayúsculas si se realizó correctamente, o un mensaje de error si la categoría ya existe.
  */
-const createCategory = async( req = request, res = response ) => {
-
+const createCategory = async (req = request, res = response) => {
   const name = req.body.name.toUpperCase();
   const categoryDB = await Category.findOne({ name });
 
-  if ( categoryDB ) {
-    return res.status( 400 ).json({ 
-      msg: `La categoría ${ categoryDB.name }, ya existe` 
+  if (categoryDB) {
+    return res.status(400).json({
+      msg: `La categoría ${categoryDB.name}, ya existe`,
     });
-  };
+  }
 
   // Generate the Data to Save
   const data = {
@@ -72,12 +69,12 @@ const createCategory = async( req = request, res = response ) => {
     user: req.user._id,
   };
 
-  const category = new Category( data );
+  const category = new Category(data);
 
   // Save Category
   await category.save();
 
-  res.status( 201 ).json( category );
+  res.status(201).json(category);
 };
 
 /**
@@ -88,17 +85,16 @@ const createCategory = async( req = request, res = response ) => {
  * @param { Object } res - el objeto de respuesta para devolver la categoría actualizada.
  * @returns { Promise<void> } - una promesa que se resuelve después de actualizar la categoría y enviar la respuesta.
  */
-const updateCategory = async( req = request, res = response ) =>  {
-
+const updateCategory = async (req = request, res = response) => {
   const { id } = req.params;
   const { state, user, ...data } = req.body;
 
   data.name = data.name.toUpperCase();
   data.user = req.user._id;
 
-  const category = await Category.findByIdAndUpdate( id, data, { new: true } );
+  const category = await Category.findByIdAndUpdate(id, data, { new: true });
 
-  res.status( 200 ).json( category );
+  res.status(200).json(category);
 };
 
 /**
@@ -109,13 +105,16 @@ const updateCategory = async( req = request, res = response ) =>  {
  * @param { Object } res - el objeto de respuesta para enviar de vuelta la información de la categoría actualizada.
  * @returns { Promise<void> } - una promesa que se resuelve después de actualizar el estado de la categoría y enviar la respuesta.
  */
-const deleteCategory = async( req = request, res = response ) => {
-
+const deleteCategory = async (req = request, res = response) => {
   const { id } = req.params;
 
-  const categoryDelete = await Category.findByIdAndUpdate( id, { state: false }, { new: true } );
+  const categoryDelete = await Category.findByIdAndUpdate(
+    id,
+    { state: false },
+    { new: true },
+  );
 
-  res.status( 200 ).json( categoryDelete );
+  res.status(200).json(categoryDelete);
 };
 
 export {
