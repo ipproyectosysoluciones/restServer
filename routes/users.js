@@ -10,14 +10,14 @@ import {
   existEmail,
   userIdExist,
   isRoleValid,
-} from '../helpers/db-validators.js';
+} from '../helpers/index.js';
 import {
   usersDelete,
   usersGet,
   usersPatch,
   usersPost,
   usersPut,
-} from '../controllers/users.js';
+} from '../controllers/index.js';
 
 const router = Router();
 

@@ -1,12 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import fileUpload from 'express-fileupload';
-import authRoutes from '../routes/auth.js';
-import searchRoutes from '../routes/search.js';
-import categoriesRoutes from '../routes/categories.js';
-import productsRoutes from '../routes/products.js';
-import uploadsRoutes from '../routes/uploads.js';
-import usersRoutes from '../routes/users.js';
+import {
+  authRoutes,
+  categoriesRoutes,
+  productsRoutes,
+  searchRoutes,
+  uploadsRoutes,
+  usersRoutes,
+} from '../routes/index.js';
 import { dbConnection } from '../database/config.js';
 
 /**

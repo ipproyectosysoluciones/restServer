@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
 import { validateFields } from '../middleware/index.js';
-import { uploadFile } from '../controllers/uploads.js';
+import { uploadFile } from '../controllers/index.js';
 
 const router = Router();
 

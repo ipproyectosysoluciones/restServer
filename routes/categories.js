@@ -11,8 +11,8 @@ import {
   getCategories,
   getCategory,
   updateCategory,
-} from '../controllers/categories.js';
-import { categoryIdExit } from '../helpers/db-validators.js';
+} from '../controllers/index.js';
+import { categoryIdExit } from '../helpers/index.js';
 
 const router = Router();
 

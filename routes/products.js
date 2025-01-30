@@ -11,8 +11,8 @@ import {
   getProduct,
   getProducts,
   updateProduct,
-} from '../controllers/products.js';
-import { categoryIdExit, productIdExit } from '../helpers/db-validators.js';
+} from '../controllers/index.js';
+import { categoryIdExit, productIdExit } from '../helpers/index.js';
 
 const router = Router();
 

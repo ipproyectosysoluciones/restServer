@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { search } from '../controllers/search.js';
+import { search } from '../controllers/index.js';
 
 const router = Router();
 
