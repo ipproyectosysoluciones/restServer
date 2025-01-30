@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'url';
 import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 import { response, request } from 'express';
 
 // Get the directory path in ES modules
@@ -19,7 +20,7 @@ const uploadFile = (req = request, res = response) => {
   }
 
   const { file } = req.files;
-  nameCut = file.name.split('.');
+  const nameCut = file.name.split('.');
   const extension = nameCut[nameCut.length - 1];
 
   // Validar la extensión del archivo
@@ -33,9 +34,8 @@ const uploadFile = (req = request, res = response) => {
       });
   }
 
-  res.json({ extension });
-
-  const uploadPath = path.join(__dirname, '../uploads/', file.name);
+  const tempName = uuidv4() + '.' + extension;
+  const uploadPath = path.join(__dirname, '../uploads/', tempName);
 
   file.mv(uploadPath, (err) => {
     if (err) {
