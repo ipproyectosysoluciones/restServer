@@ -1,6 +1,7 @@
 node_modules
 dist
 .env
+.env.example
 .vscode
 .git
 .gitignore
@@ -11,4 +12,5 @@ package-lock.json
 pnpm-lock.yaml
 yarn.lock
 *.html
+*.jpg
 README.md
