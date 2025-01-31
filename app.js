@@ -1,11 +1,14 @@
 import dotenv from 'dotenv';
-import { Server } from './models/index.js';
 
-// Load environment variables from.env file
+// Load environment variables first
 dotenv.config();
+
+import { Server } from './models/index.js';
+import { configureCloudinary } from './config/cloudinary.js';
+
+// Configure Cloudinary
+configureCloudinary();
 
 // Start the server
 const server = new Server();
-
-// Start the server on the specified port or 3000 by default
 server.listen();
