@@ -75,4 +75,41 @@ const updateImage = async (req = request, res = response) => {
   res.json(model);
 };
 
-export { uploadFile, updateImage };
+const showImage = async (req = request, res = response) => {
+  const { collection, id } = req.params;
+
+  let model;
+  switch (collection) {
+    case 'users':
+      model = await User.findById(id);
+      if (!model) {
+        return res.status(400).json({
+          msg: `No existe un usuario con el id ${id}`,
+        });
+      }
+      break;
+    case 'products':
+      model = await Product.findById(id)
+        if (!model) {
+          return res.status(400).json({
+            msg: `No existe un producto con el id ${id}`,
+          });
+        }
+        break;
+
+    default: 
+      return res.status(500).json({ msg: 'Se me olvido hacer esto.' });
+  }
+
+  if (model.img) {
+    const pathImage = path.join(__dirname, '../uploads', collection, model.img);
+    if (fs.existsSync(pathImage)) {
+      return res.sendFile(pathImage);
+    }
+  }
+
+  const pathImage = path.join(__dirname, '../assets/no-image.jpg');
+  res.sendFile(pathImage);
+};
+
+export { showImage, uploadFile, updateImage };
