@@ -1,6 +1,11 @@
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fs from 'fs';
 import { response, request } from 'express';
 import { upload_File } from '../helpers/index.js';
 import { User, Product } from '../models/index.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * @name uploadFile
@@ -54,6 +59,14 @@ const updateImage = async (req = request, res = response) => {
   }
 
   // Limpiar imágenes previas
+  if (model.img) {
+    // Borrar la imagen del servidor
+    const pathImage = path.join(__dirname, '../uploads', collection, model.img);
+    if (fs.existsSync(pathImage)) {
+      fs.unlinkSync(pathImage);
+    }
+  }
+
   const name = await upload_File(req.files, undefined, collection);
   model.img = name;
 
