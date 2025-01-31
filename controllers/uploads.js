@@ -10,22 +10,15 @@ import { User, Product } from '../models/index.js';
  * @returns { Object } Devuelve un objeto con el nombre del archivo subido.
  */
 const uploadFile = async (req = request, res = response) => {
-  if (!req.files || Object.keys(req.files).length === 0 || !req.files.file) {
-    res.status(400).json({ msg: 'No hay archivos para subir.' });
-    return;
-  }
-
   try {
     // 'txt', 'md'
     // const name = await upload_File(req.files, ['txt', 'md'], 'texts');
     // 'img'
     const name = await upload_File(req.files, undefined, 'img');
     res.json({ name });
-    
   } catch (msg) {
     res.status(400).json({ msg });
   }
-
 };
 
 /**
@@ -66,7 +59,7 @@ const updateImage = async (req = request, res = response) => {
 
   await model.save();
 
-  res.json( model );
+  res.json(model);
 };
 
 export { uploadFile, updateImage };
