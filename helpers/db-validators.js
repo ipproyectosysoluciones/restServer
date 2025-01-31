@@ -76,4 +76,23 @@ const productIdExit = async (id) => {
   }
 };
 
-export { categoryIdExit, existEmail, productIdExit, userIdExist, isRoleValid };
+/**
+ * @name collectionsAllowed
+ * @description Valida si una colección es permitida.
+ * @param { string } collection - Colección a validar.
+ * @param { string[] } collections - Colecciones permitidas.
+ * @returns { boolean } Devuelve true si la colección es permitida.
+ */
+const collectionsAllowed = (collection = '', collections = []) => {
+  const included = collections.includes(collection);
+
+  if (!included) {
+    throw new Error(
+      `La colección ${collection} no es permitida, ${collections}`,
+    );
+  }
+
+  return true;
+};
+
+export { categoryIdExit, collectionsAllowed, existEmail, productIdExit, userIdExist, isRoleValid };

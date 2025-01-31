@@ -1,12 +1,13 @@
 import { response, request } from 'express';
 import { upload_File } from '../helpers/index.js';
+import { User, Product } from '../models/index.js';
 
 /**
  * @name uploadFile
  * @description Controlador para subir archivos al server.
  * @param { Object } req - El objeto de solicitud que contiene los archivos a subir.
  * @param { Object } res - El objeto de respuesta para enviar el resultado.
- * @returns { Object } Un mensaje de éxito si el archivo se subió correctamente, o un mensaje de error si no se subió el archivo.
+ * @returns { Object } Devuelve un objeto con el nombre del archivo subido.
  */
 const uploadFile = async (req = request, res = response) => {
   if (!req.files || Object.keys(req.files).length === 0 || !req.files.file) {
@@ -27,4 +28,45 @@ const uploadFile = async (req = request, res = response) => {
 
 };
 
-export { uploadFile };
+/**
+ * @name updateImage
+ * @description Controlador para actualizar la imagen de un usuario o producto.
+ * @param { Object } req - El objeto de solicitud que contiene los parámetros de la URL.
+ * @param { Object } res - El objeto de respuesta para enviar el resultado.
+ * @returns { Object } Devuelve un objeto con el usuario o producto actualizado.
+ */
+const updateImage = async (req = request, res = response) => {
+  const { collection, id } = req.params;
+
+  let model;
+  switch (collection) {
+    case 'users':
+      model = await User.findById(id);
+      if (!model) {
+        return res.status(400).json({
+          msg: `No existe un usuario con el id ${id}`,
+        });
+      }
+      break;
+    case 'products':
+      model = await Product.findById(id);
+      if (!model) {
+        return res.status(400).json({
+          msg: `No existe un producto con el id ${id}`,
+        });
+      }
+      break;
+    default:
+      return res.status(500).json({ msg: 'Se me olvido hacer esto.' });
+  }
+
+  // Limpiar imágenes previas
+  const name = await upload_File(req.files, undefined, collection);
+  model.img = name;
+
+  await model.save();
+
+  res.json( model );
+};
+
+export { uploadFile, updateImage };
