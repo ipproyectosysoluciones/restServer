@@ -65,7 +65,12 @@ pnpm dev
 pnpm start
 ```
 
-### Endpoints Principales
+## Documentación de la API
+
+La documentación completa de la API está disponible en Postman:
+[Ver Documentación en Postman](https://documenter.getpostman.com/view/5248894/2sAYX3q3ZB)
+
+### Resumen de Endpoints
 
 #### Autenticación
 
@@ -102,6 +107,8 @@ pnpm start
 #### Búsqueda
 
 - `GET /api/search/:collection/:term` - Buscar en colecciones
+
+Para más detalles sobre los endpoints, parámetros, respuestas y ejemplos, consulte la [documentación en Postman](https://documenter.getpostman.com/view/5248894/2sAYX3q3ZB).
 
 ## Estructura del Proyecto
 

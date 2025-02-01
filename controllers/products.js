@@ -2,121 +2,197 @@ import { request, response } from 'express';
 import { Product } from '../models/index.js';
 
 /**
+ * @typedef {Object} ProductResponse
+ * @property {string} status - Estado de la respuesta
+ * @property {Object} data - Datos del producto
+ * @property {string} timestamp - Marca de tiempo
+ */
+
+const createResponse = (status = 'success', data = null, message = null) => ({
+  status,
+  ...(data && { data }),
+  ...(message && { message }),
+  timestamp: new Date().toISOString()
+});
+
+/**
  * @name getProducts
- * @description Controlador para manejar las solicitudes GET y obtener todos los productos en la base de datos.
- * @param {*} req Objeto de solicitud que contiene la información enviada por el cliente.
- * @param {*} res Objeto de respuesta para enviar la respuesta al cliente.
- * @returns { Promise<void> } Una promesa que se resuelve después de enviar la respuesta.
+ * @description Obtener productos con paginación y filtros
  */
 const getProducts = async (req = request, res = response) => {
-  // Get params from query
-  const { limit = 5, from = 0 } = req.query;
-  const query = { state: true };
+  try {
+    const { 
+      limit = 5, 
+      from = 0,
+      sort = 'name',
+      available 
+    } = req.query;
 
-  // Find all the products and paginate them
-  const [total, products] = await Promise.all([
-    Product.countDocuments(query),
-    Product.find(query)
-      .populate('user', 'name')
-      .populate('category', 'name')
-      .skip(Number(from))
-      .limit(Number(limit)),
-  ]);
+    const query = { 
+      state: true,
+      ...(available !== undefined && { available: available === 'true' })
+    };
 
-  res.status(200).json({
-    total,
-    products,
-  });
+    const [total, products] = await Promise.all([
+      Product.countDocuments(query),
+      Product.find(query)
+        .populate('user', 'name')
+        .populate('category', 'name')
+        .sort(sort)
+        .skip(Number(from))
+        .limit(Number(limit))
+    ]);
+
+    return res.json(createResponse('success', {
+      total,
+      page: Math.floor(from / limit) + 1,
+      limit: Number(limit),
+      products
+    }));
+  } catch (error) {
+    console.error('Error en getProducts:', error);
+    return res.status(500).json(
+      createResponse('error', null, 'Error al obtener productos')
+    );
+  }
 };
 
 /**
  * @name getProduct
- * @description Controlador para manejar las solicitudes GET y obtener un producto en particular.
- * @param {*} req Objeto de solicitud que contiene la información enviada por el cliente.
- * @param {*} res Objeto de respuesta para enviar la respuesta al cliente.
- * @returns { Promise<void> } Una promesa que se resuelve después de enviar la respuesta.
+ * @description Obtener un producto por ID
  */
 const getProduct = async (req = request, res = response) => {
-  const { id } = req.params;
-  // Find the product by id
-  const product = await Product.findById(id)
-    .populate('user', 'name')
-    .populate('category', 'name');
+  try {
+    const { id } = req.params;
+    
+    const product = await Product.findOne({ 
+      _id: id,
+      state: true 
+    })
+      .populate('user', 'name')
+      .populate('category', 'name');
 
-  res.status(200).json(product);
+    if (!product) {
+      return res.status(404).json(
+        createResponse('error', null, 'Producto no encontrado')
+      );
+    }
+
+    return res.json(createResponse('success', { product }));
+  } catch (error) {
+    console.error('Error en getProduct:', error);
+    return res.status(500).json(
+      createResponse('error', null, 'Error al obtener el producto')
+    );
+  }
 };
 
 /**
  * @name createProduct
- * @description Función asincrónica para crear un nuevo producto.
- *
- * @param { Object } req - El objeto de solicitud que contiene los datos del producto en el cuerpo.
- * @param { Object } res - El objeto de respuesta para enviar el resultado.
- * @returns { Object } El producto creado si se realizó correctamente, o un mensaje de error si el producto ya existe.
+ * @description Crear nuevo producto
  */
 const createProduct = async (req = request, res = response) => {
-  const { state, user, ...body } = req.body;
-  const productDB = await Product.findOne({ name: body.name });
-
-  if (productDB) {
-    return res.status(400).json({
-      msg: `El producto ${productDB.name}, ya existe`,
+  try {
+    const { state, user, ...productData } = req.body;
+    
+    const existingProduct = await Product.findOne({
+      name: productData.name?.toUpperCase(),
+      state: true
     });
+
+    if (existingProduct) {
+      return res.status(400).json(
+        createResponse('error', null, `El producto ${productData.name} ya existe`)
+      );
+    }
+
+    const data = {
+      ...productData,
+      name: productData.name.toUpperCase(),
+      user: req.authenticatedUser._id
+    };
+
+    const product = new Product(data);
+    await product.save();
+
+    return res.status(201).json(createResponse('success', { product }));
+  } catch (error) {
+    console.error('Error en createProduct:', error);
+    return res.status(500).json(
+      createResponse('error', null, 'Error al crear el producto')
+    );
   }
-
-  // Generate the Data to Save
-  const data = {
-    ...body,
-    name: req.body.name.toUpperCase(),
-    user: req.user._id,
-  };
-
-  const product = new Product(data);
-
-  // Save Product
-  await product.save();
-
-  res.status(201).json(product);
 };
 
 /**
  * @name updateProduct
- * @description Actualiza un producto por su ID.
- * @param { Object } req - El objeto de solicitud que contiene los datos del producto en el cuerpo.
- * @param { Object } res - El objeto de respuesta para enviar el resultado.
- * @returns { Object } El producto actualizado si se realizó correctamente, o un mensaje de error si el producto no existe
+ * @description Actualizar producto existente
  */
 const updateProduct = async (req = request, res = response) => {
-  const { id } = req.params;
-  const { state, user, ...data } = req.body;
+  try {
+    const { id } = req.params;
+    const { state, user, ...data } = req.body;
 
-  if (data.name) {
-    data.name = data.name.toUpperCase();
+    if (data.name) {
+      data.name = data.name.toUpperCase().trim();
+    }
+    
+    data.user = req.authenticatedUser._id;
+
+    const product = await Product.findOneAndUpdate(
+      { _id: id, state: true },
+      data,
+      { new: true, runValidators: true }
+    ).populate('category', 'name');
+
+    if (!product) {
+      return res.status(404).json(
+        createResponse('error', null, 'Producto no encontrado')
+      );
+    }
+
+    return res.json(createResponse('success', { product }));
+  } catch (error) {
+    console.error('Error en updateProduct:', error);
+    return res.status(500).json(
+      createResponse('error', null, 'Error al actualizar el producto')
+    );
   }
-  data.user = req.user._id;
-
-  const product = await Product.findByIdAndUpdate(id, data, { new: true });
-
-  res.status(200).json(product);
 };
 
 /**
  * @name deleteProduct
- * @description Elimina un producto por su ID.
- * @param { Object } req - El objeto de solicitud que contiene los datos del producto en el cuerpo.
- * @param { Object } res - El objeto de respuesta para enviar el resultado.
- * @returns { Object } El producto eliminado si se realizó correctamente, o un mensaje de error si el producto no existe
+ * @description Desactivar producto (borrado lógico)
  */
 const deleteProduct = async (req = request, res = response) => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  const productDelete = await Product.findByIdAndUpdate(
-    id,
-    { state: false },
-    { new: true },
-  );
+    const product = await Product.findOneAndUpdate(
+      { _id: id, state: true },
+      { state: false },
+      { new: true }
+    );
 
-  res.status(200).json(productDelete);
+    if (!product) {
+      return res.status(404).json(
+        createResponse('error', null, 'Producto no encontrado')
+      );
+    }
+
+    return res.json(createResponse('success', { product }));
+  } catch (error) {
+    console.error('Error en deleteProduct:', error);
+    return res.status(500).json(
+      createResponse('error', null, 'Error al eliminar el producto')
+    );
+  }
 };
 
-export { createProduct, deleteProduct, getProduct, getProducts, updateProduct };
+export { 
+  createProduct, 
+  deleteProduct, 
+  getProduct, 
+  getProducts, 
+  updateProduct 
+};

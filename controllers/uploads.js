@@ -1,198 +1,131 @@
 import { fileURLToPath } from 'url';
 import path from 'path';
-import fs from 'fs';
-import { cloudinary } from '../config/cloudinary.js';
+import fs from 'fs/promises';
 import { response, request } from 'express';
-import { upload_File } from '../helpers/index.js';
+import { uploadFile } from '../helpers/index.js';
+import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';
 import { User, Product } from '../models/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const createResponse = (status = 'success', data = null, message = null) => ({
+  status,
+  ...(data && { data }),
+  ...(message && { message }),
+  timestamp: new Date().toISOString()
+});
+
 /**
- * @name uploadFile
- * @description Controlador para subir archivos al server.
- * @param { Object } req - El objeto de solicitud que contiene los archivos a subir.
- * @param { Object } res - El objeto de respuesta para enviar el resultado.
- * @returns { Object } Devuelve un objeto con el nombre del archivo subido.
+ * @name getModelByCollection
+ * @description Obtiene y valida modelo según colección
  */
-const uploadFile = async (req = request, res = response) => {
-  try {
-    // 'txt', 'md'
-    // const name = await upload_File(req.files, ['txt', 'md'], 'texts');
-    // 'img'
-    const name = await upload_File(req.files, undefined, 'img');
-    res.json({ name });
-  } catch (msg) {
-    res.status(400).json({ msg });
+const getModelByCollection = async (collection, id) => {
+  const models = {
+    users: User,
+    products: Product
+  };
+
+  const Model = models[collection];
+  if (!Model) {
+    throw new Error(`Colección ${collection} no válida`);
   }
+
+  const document = await Model.findById(id);
+  if (!document) {
+    throw new Error(`No existe un ${collection} con el id ${id}`);
+  }
+
+  return document;
 };
 
 /**
- * @name updateImage
- * @description Controlador para actualizar la imagen de un usuario o producto.
- * @param { Object } req - El objeto de solicitud que contiene los parámetros de la URL.
- * @param { Object } res - El objeto de respuesta para enviar el resultado.
- * @returns { Object } Devuelve un objeto con el usuario o producto actualizado.
+ * @name uploadFileController
+ * @description Controlador para subida de archivos
  */
-const updateImage = async (req = request, res = response) => {
-  const { collection, id } = req.params;
-
-  let model;
-  switch (collection) {
-    case 'users':
-      model = await User.findById(id);
-      if (!model) {
-        return res.status(400).json({
-          msg: `No existe un usuario con el id ${id}`,
-        });
-      }
-      break;
-    case 'products':
-      model = await Product.findById(id);
-      if (!model) {
-        return res.status(400).json({
-          msg: `No existe un producto con el id ${id}`,
-        });
-      }
-      break;
-    default:
-      return res.status(500).json({ msg: 'Se me olvido hacer esto.' });
+const uploadFileController = async (req = request, res = response) => {
+  try {
+    const fileName = await uploadFile(req.files, undefined, 'uploads');
+    return res.json(createResponse('success', { fileName }));
+  } catch (error) {
+    console.error('Error en uploadFileController:', error);
+    return res.status(400).json(
+      createResponse('error', null, error.message)
+    );
   }
-
-  // Limpiar imágenes previas
-  if (model.img) {
-    // Borrar la imagen del servidor
-    const pathImage = path.join(__dirname, '../uploads', collection, model.img);
-    if (fs.existsSync(pathImage)) {
-      fs.unlinkSync(pathImage);
-    }
-  }
-
-  const name = await upload_File(req.files, undefined, collection);
-  model.img = name;
-
-  await model.save();
-
-  res.json(model);
 };
 
 /**
  * @name updateImageCloudinary
- * @description Controlador para actualizar la imagen de un usuario o producto utilizando Cloudinary.
- * @param { Object } req - El objeto de solicitud que contiene los parámetros de la URL y los datos de la imagen.
- * @param { Object } res - El objeto de respuesta para enviar el resultado.
- * @returns { Object } Devuelve un objeto con el usuario o producto actualizado.
+ * @description Actualizar imagen en Cloudinary
  */
 const updateImageCloudinary = async (req = request, res = response) => {
   try {
     const { collection, id } = req.params;
-
-    let model;
-    switch (collection) {
-      case 'users':
-        model = await User.findById(id);
-        if (!model) {
-          return res.status(400).json({
-            msg: `No existe un usuario con el id ${id}`,
-          });
-        }
-        break;
-      case 'products':
-        model = await Product.findById(id);
-        if (!model) {
-          return res.status(400).json({
-            msg: `No existe un producto con el id ${id}`,
-          });
-        }
-        break;
-      default:
-        return res.status(500).json({ msg: 'Se me olvido hacer esto.' });
-    }
-
-    // Limpiar imágenes previas
-    if (model.img) {
-      const nameArr = model.img.split('/');
-      const name = nameArr[nameArr.length - 1];
-      const [public_id] = name.split('.');
-      await cloudinary.uploader.destroy(public_id);
-    }
-
-    const { tempFilePath } = req.files.file;
     
-    try {
-      // Upload to Cloudinary
-      const { secure_url } = await cloudinary.uploader.upload(tempFilePath, {
-        folder: collection, // Especifica la carpeta
-      });
-
-      model.img = secure_url;
-      await model.save();
-      
-      // Cleanup temp file
-      if (fs.existsSync(tempFilePath)) {
-        fs.unlinkSync(tempFilePath);
-      }
-
-      res.json(model);
-    } catch (uploadError) {
-      console.error('Cloudinary upload error:', uploadError);
-      res.status(500).json({ 
-        msg: 'Error al subir imagen a Cloudinary',
-        error: uploadError.message 
-      });
+    if (!req.files?.file) {
+      throw new Error('No se ha proporcionado ningún archivo');
     }
-  } catch (error) {
-    console.error('General error:', error);
-    res.status(500).json({ 
-      msg: 'Error en el servidor',
-      error: error.message 
+
+    const model = await getModelByCollection(collection, id);
+    
+    // Gestionar imagen previa
+    if (model.img) {
+      const publicId = model.img.split('/').pop().split('.')[0];
+      await deleteFromCloudinary(publicId).catch(console.error);
+    }
+
+    // Subir nueva imagen
+    const { tempFilePath } = req.files.file;
+    const { secure_url } = await uploadToCloudinary(tempFilePath, {
+      folder: `coffee-shop/${collection}`
     });
+
+    model.img = secure_url;
+    await model.save();
+
+    // Limpiar archivo temporal
+    await fs.unlink(tempFilePath).catch(console.error);
+
+    return res.json(createResponse('success', { model }));
+
+  } catch (error) {
+    console.error('Error en updateImageCloudinary:', error);
+    return res.status(error.status || 500).json(
+      createResponse('error', null, error.message || 'Error interno del servidor')
+    );
   }
 };
 
 /**
  * @name showImage
- * @description Controlador para mostrar la imagen de un usuario o producto.
- * @param { Object } req - El objeto de solicitud que contiene los parámetros de la URL.
- * @param { Object } res - El objeto de respuesta para enviar el resultado.
- * @returns { Object } Devuelve la imagen del usuario o producto.
- * @returns { Object } Devuelve una imagen por defecto si no se encuentra la imagen del usuario o producto.
+ * @description Mostrar imagen de entidad
  */
 const showImage = async (req = request, res = response) => {
-  const { collection, id } = req.params;
+  try {
+    const { collection, id } = req.params;
+    const model = await getModelByCollection(collection, id);
 
-  let model;
-  switch (collection) {
-    case 'users':
-      model = await User.findById(id);
-      if (!model) {
-        return res.status(400).json({
-          msg: `No existe un usuario con el id ${id}`,
-        });
+    if (model.img) {
+      const imagePath = path.join(__dirname, '../uploads', collection, model.img);
+      if (await fs.access(imagePath).then(() => true).catch(() => false)) {
+        return res.sendFile(imagePath);
       }
-      break;
-    case 'products':
-      model = await Product.findById(id)
-        if (!model) {
-          return res.status(400).json({
-            msg: `No existe un producto con el id ${id}`,
-          });
-        }
-        break;
-
-    default: 
-      return res.status(500).json({ msg: 'Se me olvido hacer esto.' });
-  }
-
-  if (model.img) {
-    const pathImage = path.join(__dirname, '../uploads', collection, model.img);
-    if (fs.existsSync(pathImage)) {
-      return res.sendFile(pathImage);
     }
-  }
 
-  const pathImage = path.join(__dirname, '../assets/no-image.jpg');
-  res.sendFile(pathImage);
+    // Imagen por defecto si no se encuentra
+    const defaultImage = path.join(__dirname, '../assets/no-image.jpg');
+    return res.sendFile(defaultImage);
+
+  } catch (error) {
+    console.error('Error en showImage:', error);
+    return res.status(404).json(
+      createResponse('error', null, error.message)
+    );
+  }
 };
 
-export { showImage, uploadFile, updateImage, updateImageCloudinary };
+export { 
+  showImage, 
+  uploadFileController as uploadFile,
+  updateImageCloudinary 
+};

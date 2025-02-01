@@ -1,35 +1,15 @@
 import express from 'express';
 import cors from 'cors';
 import fileUpload from 'express-fileupload';
-import {
-  authRoutes,
-  categoriesRoutes,
-  productsRoutes,
-  searchRoutes,
-  uploadsRoutes,
-  usersRoutes,
-} from '../routes/index.js';
+import { routes } from '../routes/index.js';
 import { dbConnection } from '../database/config.js';
 
-/**
- * @class
- * @name Server
- * @description Esta clase configura y administra el servidor Express.
- */
 class Server {
-  /**
-   * @constructor
-   * @description Inicializa el servidor Express con las configuraciones y middlewares necesarios.
-   * @returns { Server } Devuelve una instancia de la clase Server.
-   */
   constructor() {
-    // Create the Express app instance
     this.app = express();
-
-    // Server settings
-    this.port = process.env.PORT;
-
-    // Paths
+    this.port = process.env.PORT || 3000;
+    
+    // Definición centralizada de rutas
     this.paths = {
       auth: '/api/auth',
       categories: '/api/categories',
@@ -39,76 +19,68 @@ class Server {
       users: '/api/users',
     };
 
-    // Connect to DB
-    this.connectDB();
-
-    // Middlewares
-    this.middlewares();
-
-    // Routes
-    this.routes();
+    this.initialize();
   }
 
-  // Connect to DB
   /**
-   * @name connectDB
-   * @description Conecta al motor de base de datos MongoDB.
-   * @returns { Promise<void> } Devuelve una promesa que se resuelve cuando la conexión se realiza correctamente.
+   * Inicializa todos los componentes del servidor
    */
+  async initialize() {
+    try {
+      await this.connectDB();
+      this.middlewares();
+      this.routes();
+      console.log('✓ Server initialized successfully');
+    } catch (error) {
+      console.error('✗ Server initialization failed:', error);
+      process.exit(1);
+    }
+  }
+
   async connectDB() {
     await dbConnection();
   }
 
-  // Middlewares
-  /**
-   * @name middlewares
-   * @description Agrega middlewares necesarios para el funcionamiento del server.
-   * @returns { void } No devuelve nada.
-   */
   middlewares() {
-    // CORS
-    this.app.use(cors());
+    // CORS con opciones de seguridad
+    this.app.use(cors({
+      origin: process.env.CORS_ORIGIN || '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization']
+    }));
 
-    // Body parser
-    this.app.use(express.json());
+    // Parser JSON con límite
+    this.app.use(express.json({ limit: '10mb' }));
 
-    // Public Directory
+    // Archivos estáticos
     this.app.use(express.static('public'));
 
-    // File Uploads
-    this.app.use(
-      fileUpload({
-        useTempFiles: true,
-        tempFileDir: '/tmp/',
-        createParentPath: true,
-      }),
-    );
+    // Configuración de subida de archivos
+    this.app.use(fileUpload({
+      useTempFiles: true,
+      tempFileDir: '/tmp/',
+      createParentPath: true,
+      limits: { fileSize: 50 * 1024 * 1024 } // 50MB max
+    }));
   }
 
-  // Define the routes
-  /**
-   * @name routes
-   * @description Define las rutas para las diferentes endpoints.
-   * @returns { void } No devuelve nada.
-   */
   routes() {
-    this.app.use(this.paths.auth, authRoutes);
-    this.app.use(this.paths.categories, categoriesRoutes);
-    this.app.use(this.paths.products, productsRoutes);
-    this.app.use(this.paths.search, searchRoutes);
-    this.app.use(this.paths.uploads, uploadsRoutes);
-    this.app.use(this.paths.users, usersRoutes);
+    // Montaje de rutas usando el objeto routes centralizado
+    Object.entries(this.paths).forEach(([key, path]) => {
+      this.app.use(path, routes[key]);
+    });
+
+    // Manejo de rutas no encontradas
+    this.app.use('*', (req, res) => {
+      res.status(404).json({ 
+        msg: `Route ${req.originalUrl} not found`
+      });
+    });
   }
 
-  // Start the server
-  /**
-   * @name listen
-   * @description Inicia el server en el puerto especificado o en el puerto 3000 por defecto.
-   * @returns { void } No devuelve nada.
-   */
   listen() {
     this.app.listen(this.port, () => {
-      console.log(`Server is running on port ${this.port}`);
+      console.log(`✓ Server running on port ${this.port}`);
     });
   }
 }

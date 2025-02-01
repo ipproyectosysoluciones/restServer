@@ -4,7 +4,7 @@ import {
   isAdminRole,
   validateFields,
   validateJWT,
-} from '../middleware/index.js';
+} from '../middlewares/index.js';
 import {
   createCategory,
   deleteCategory,
@@ -14,52 +14,93 @@ import {
 } from '../controllers/index.js';
 import { categoryIdExit } from '../helpers/index.js';
 
+/**
+ * @typedef {Object} CategoryResponse
+ * @property {string} id - ID de la categoría
+ * @property {string} name - Nombre de la categoría
+ * @property {Object} user - Usuario que creó/modificó la categoría
+ */
+
 const router = Router();
 
-router.get('/', getCategories);
-
-router.get(
-  '/:id',
-  [
-    check('id', 'No es un ID de Mongo').isMongoId(),
-    check('id').custom(categoryIdExit),
-    validateFields,
+// Validaciones comunes
+const categoryValidations = {
+  getById: [
+    check('id')
+      .isMongoId().withMessage('ID no válido')
+      .custom(categoryIdExit),
+    validateFields
   ],
-  getCategory,
-);
-
-router.post(
-  '/',
-  [
+  create: [
     validateJWT,
-    check('name', 'El nombre es obligatorio').not().isEmpty(),
-    validateFields,
+    check('name')
+      .trim()
+      .notEmpty().withMessage('El nombre es obligatorio')
+      .isLength({ min: 3, max: 50 }).withMessage('El nombre debe tener entre 3 y 50 caracteres'),
+    validateFields
   ],
-  createCategory,
-);
-
-router.put(
-  '/:id',
-  [
+  update: [
     validateJWT,
-    check('name', 'El nombre es obligatorio').not().isEmpty(),
-    check('id').custom(categoryIdExit),
-    check('id', 'No es un ID de Mongo').isMongoId(),
-    validateFields,
+    check('id')
+      .isMongoId().withMessage('ID no válido')
+      .custom(categoryIdExit),
+    check('name')
+      .trim()
+      .notEmpty().withMessage('El nombre es obligatorio')
+      .isLength({ min: 3, max: 50 }).withMessage('El nombre debe tener entre 3 y 50 caracteres'),
+    validateFields
   ],
-  updateCategory,
-);
-
-router.delete(
-  '/:id',
-  [
+  delete: [
     validateJWT,
     isAdminRole,
-    check('id', 'No es un ID de Mongo').isMongoId(),
-    check('id').custom(categoryIdExit),
-    validateFields,
-  ],
-  deleteCategory,
-);
+    check('id')
+      .isMongoId().withMessage('ID no válido')
+      .custom(categoryIdExit),
+    validateFields
+  ]
+};
+
+/**
+ * @route GET /api/categories
+ * @description Obtener todas las categorías
+ * @access Public
+ * @returns {Array<CategoryResponse>} Lista de categorías
+ */
+router.get('/', getCategories);
+
+/**
+ * @route GET /api/categories/:id
+ * @description Obtener una categoría por ID
+ * @access Public
+ * @returns {CategoryResponse} Categoría encontrada
+ */
+router.get('/:id', categoryValidations.getById, getCategory);
+
+/**
+ * @route POST /api/categories
+ * @description Crear una nueva categoría
+ * @access Private
+ * @returns {CategoryResponse} Categoría creada
+ */
+router.post('/', categoryValidations.create, createCategory);
+
+/**
+ * @route PUT /api/categories/:id
+ * @description Actualizar una categoría existente
+ * @access Private
+ * @returns {CategoryResponse} Categoría actualizada
+ */
+router.put('/:id', categoryValidations.update, updateCategory);
+
+/**
+ * @route DELETE /api/categories/:id
+ * @description Eliminar una categoría (desactivar)
+ * @access Private - Admin only
+ * @returns {Object} Confirmación de eliminación
+ */
+router.delete('/:id', categoryValidations.delete, deleteCategory);
+
+// Prevenir modificaciones del router
+Object.freeze(router);
 
 export default router;
