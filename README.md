@@ -1,6 +1,18 @@
 # Coffee Shop REST API
 
-API REST para la gestión de una tienda de café, construida con Node.js, Express y MongoDB.
+REST API mejorada para la gestión de una tienda de café, construida con Node.js, Express y MongoDB.
+
+## Nuevas Características y Mejoras
+
+- Sistema robusto de manejo de errores
+- Validaciones mejoradas para todos los modelos
+- Respuestas estandarizadas en toda la API
+- Sistema de reintentos para conexiones de base de datos
+- Validación mejorada de archivos y tipos MIME
+- Mejor gestión de actualizaciones parciales
+- Indices optimizados para consultas frecuentes
+- Sistema de logging mejorado
+- Validaciones TypeScript-style con JSDoc
 
 ## Características
 
@@ -125,6 +137,59 @@ restServer/
 ├── routes/          # Definición de rutas
 └── uploads/         # Almacenamiento local de archivos
 ```
+
+## Características Técnicas Mejoradas
+
+### Manejo de Errores
+
+- Errores estandarizados con códigos específicos
+- Respuestas consistentes en toda la API
+- Logging detallado de errores
+- Sistema de reintentos para operaciones críticas
+
+### Validaciones
+
+- Validación robusta de tipos de datos
+- Sanitización automática de entradas
+- Validaciones personalizadas por modelo
+- Sistema de validación de archivos mejorado
+
+### Base de Datos
+
+- Conexión con reintentos automáticos
+- Índices optimizados para mejor rendimiento
+- Validación de estados en todas las consultas
+- Manejo mejorado de relaciones entre modelos
+
+### Seguridad
+
+- Validación mejorada de JWT
+- Sistema robusto de roles y permisos
+- Sanitización reforzada de entradas
+- Validación estricta de tipos de archivo
+- Protección contra ataques comunes
+
+## Mejoras en Modelos
+
+### Usuarios
+
+- Validación mejorada de emails
+- Gestión robusta de contraseñas
+- Control de estados más granular
+- Mejor manejo de perfiles
+
+### Productos
+
+- Validación mejorada de precios
+- Sistema de categorías optimizado
+- Mejor gestión de imágenes
+- Control de disponibilidad
+
+### Categorías
+
+- Validaciones de nombre mejoradas
+- Mejor gestión de relaciones
+- Control de estado optimizado
 
 ## Características de Seguridad
 
