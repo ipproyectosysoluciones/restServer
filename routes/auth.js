@@ -13,7 +13,7 @@ const router = Router();
 
 /**
  * @route POST /api/auth/login
- * @description Autenticar un usuario con credenciales locales
+ * @description Authenticate user with local credentials
  * @access Public
  * @param {string} email - Email del usuario
  * @param {string} password - Contraseña del usuario
@@ -26,21 +26,28 @@ router.post(
   [
     check('email')
       .isEmail()
-      .withMessage('El email debe ser válido')
+      .withMessage('Invalid email format')
       .normalizeEmail()
       .trim(),
     check('password')
       .isLength({ min: 6 })
-      .withMessage('La contraseña debe tener al menos 6 caracteres')
-      .trim(),
+      .withMessage('Password must be at least 6 characters long')
+      .trim()
+      .escape(),
     validateFields,
   ],
-  login
+  async (req, res, next) => {
+    try {
+      await login(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
 );
 
 /**
  * @route POST /api/auth/google
- * @description Autenticar un usuario usando Google OAuth
+ * @description Authenticate user using Google OAuth
  * @access Public
  * @param {string} id_token - Token de autenticación de Google
  * @returns {AuthResponse} Objeto con token JWT y datos del usuario
@@ -52,11 +59,18 @@ router.post(
   [
     check('id_token')
       .notEmpty()
-      .withMessage('El token de Google es requerido')
-      .trim(),
+      .withMessage('Google token is required')
+      .trim()
+      .escape(),
     validateFields,
   ],
-  googleSigIn
+  async (req, res, next) => {
+    try {
+      await googleSigIn(req, res);
+    } catch (error) {
+      next(error);
+    }
+  }
 );
 
 // Prevenir modificación del router después de su configuración
