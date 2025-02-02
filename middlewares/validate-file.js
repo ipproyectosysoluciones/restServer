@@ -8,12 +8,7 @@ import { request, response } from 'express';
 
 const FILE_CONFIG = {
   maxFileSize: 5 * 1024 * 1024, // 5MB
-  allowedMimeTypes: [
-    'image/jpeg',
-    'image/png',
-    'image/gif',
-    'application/pdf'
-  ]
+  allowedMimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'],
 };
 
 /**
@@ -23,11 +18,15 @@ const FILE_CONFIG = {
  */
 const validateFileProperties = (file) => {
   if (file.size > FILE_CONFIG.maxFileSize) {
-    throw new Error(`El archivo excede el tamaño máximo permitido de ${FILE_CONFIG.maxFileSize / 1024 / 1024}MB`);
+    throw new Error(
+      `El archivo excede el tamaño máximo permitido de ${FILE_CONFIG.maxFileSize / 1024 / 1024}MB`,
+    );
   }
 
   if (!FILE_CONFIG.allowedMimeTypes.includes(file.mimetype)) {
-    throw new Error(`Tipo de archivo no permitido. Tipos permitidos: ${FILE_CONFIG.allowedMimeTypes.join(', ')}`);
+    throw new Error(
+      `Tipo de archivo no permitido. Tipos permitidos: ${FILE_CONFIG.allowedMimeTypes.join(', ')}`,
+    );
   }
 };
 
@@ -47,7 +46,7 @@ export const validateFileUpload = (req = request, res = response, next) => {
         status: 'error',
         code: 'NO_FILES_UPLOADED',
         message: 'No se han proporcionado archivos para subir',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -59,7 +58,7 @@ export const validateFileUpload = (req = request, res = response, next) => {
         status: 'error',
         code: 'MULTIPLE_FILES_NOT_ALLOWED',
         message: 'Solo se permite subir un archivo a la vez',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -73,7 +72,7 @@ export const validateFileUpload = (req = request, res = response, next) => {
       status: 'error',
       code: 'FILE_VALIDATION_ERROR',
       message: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };

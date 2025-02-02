@@ -15,7 +15,7 @@ const JWT_ERRORS = {
   NO_TOKEN: 'TOKEN_MISSING',
   INVALID_TOKEN: 'TOKEN_INVALID',
   USER_NOT_FOUND: 'USER_NOT_FOUND',
-  USER_INACTIVE: 'USER_INACTIVE'
+  USER_INACTIVE: 'USER_INACTIVE',
 };
 
 /**
@@ -26,7 +26,7 @@ const createErrorResponse = (code, message) => ({
   status: 'error',
   code,
   message,
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 /**
@@ -41,12 +41,14 @@ export const validateJWT = async (req = request, res = response, next) => {
   const token = req.header('x-token');
 
   if (!token) {
-    return res.status(401).json(
-      createErrorResponse(
-        JWT_ERRORS.NO_TOKEN,
-        'Token de autenticación no proporcionado'
-      )
-    );
+    return res
+      .status(401)
+      .json(
+        createErrorResponse(
+          JWT_ERRORS.NO_TOKEN,
+          'Token de autenticación no proporcionado',
+        ),
+      );
   }
 
   try {
@@ -57,29 +59,39 @@ export const validateJWT = async (req = request, res = response, next) => {
     const user = await User.findOne({ _id: uid, state: true });
 
     if (!user) {
-      return res.status(401).json(
-        createErrorResponse(
-          JWT_ERRORS.USER_NOT_FOUND,
-          'Usuario no encontrado o inactivo'
-        )
-      );
+      return res
+        .status(401)
+        .json(
+          createErrorResponse(
+            JWT_ERRORS.USER_NOT_FOUND,
+            'Usuario no encontrado o inactivo',
+          ),
+        );
     }
 
     // Almacenar usuario autenticado en request
     req.authenticatedUser = user;
     next();
-
   } catch (error) {
     console.error('JWT Validation error:', error);
 
     // Determinar tipo específico de error JWT
     let errorResponse;
     if (error instanceof jwt.TokenExpiredError) {
-      errorResponse = createErrorResponse('TOKEN_EXPIRED', 'El token ha expirado');
+      errorResponse = createErrorResponse(
+        'TOKEN_EXPIRED',
+        'El token ha expirado',
+      );
     } else if (error instanceof jwt.JsonWebTokenError) {
-      errorResponse = createErrorResponse(JWT_ERRORS.INVALID_TOKEN, 'Token inválido');
+      errorResponse = createErrorResponse(
+        JWT_ERRORS.INVALID_TOKEN,
+        'Token inválido',
+      );
     } else {
-      errorResponse = createErrorResponse('AUTH_ERROR', 'Error de autenticación');
+      errorResponse = createErrorResponse(
+        'AUTH_ERROR',
+        'Error de autenticación',
+      );
     }
 
     return res.status(401).json(errorResponse);

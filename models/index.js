@@ -17,7 +17,7 @@ const validateModels = () => {
     Product,
     Role,
     Server,
-    User
+    User,
   };
 
   for (const [modelName, ModelClass] of Object.entries(requiredModels)) {
@@ -38,10 +38,4 @@ try {
  * @description Exportación de todos los modelos de la aplicación
  * Los modelos están ordenados alfabéticamente para mejor mantenibilidad
  */
-export {
-  Category,
-  Product,
-  Role,
-  Server,
-  User
-};
+export { Category, Product, Role, Server, User };

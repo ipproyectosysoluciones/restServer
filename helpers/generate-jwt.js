@@ -25,14 +25,14 @@ const generateJWT = async (uid) => {
       throw new Error('UID inválido o no proporcionado');
     }
 
-    const payload = { 
+    const payload = {
       uid,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     const signOptions = {
       expiresIn: JWT_CONFIG.expiresIn,
-      algorithm: JWT_CONFIG.algorithm
+      algorithm: JWT_CONFIG.algorithm,
     };
 
     // Implementar lógica de reintentos
@@ -40,20 +40,17 @@ const generateJWT = async (uid) => {
     for (let attempt = 1; attempt <= JWT_CONFIG.maxRetries; attempt++) {
       try {
         return await new Promise((resolve, reject) => {
-          jwt.sign(
-            payload,
-            JWT_CONFIG.secret,
-            signOptions,
-            (error, token) => {
-              if (error) {
-                reject(new Error(`Error en la generación del token: ${error.message}`));
-              } else if (!token) {
-                reject(new Error('Token generado es inválido'));
-              } else {
-                resolve(token);
-              }
+          jwt.sign(payload, JWT_CONFIG.secret, signOptions, (error, token) => {
+            if (error) {
+              reject(
+                new Error(`Error en la generación del token: ${error.message}`),
+              );
+            } else if (!token) {
+              reject(new Error('Token generado es inválido'));
+            } else {
+              resolve(token);
             }
-          );
+          });
         });
       } catch (error) {
         lastError = error;
@@ -61,12 +58,11 @@ const generateJWT = async (uid) => {
           throw error;
         }
         // Esperar antes de reintentar
-        await new Promise(resolve => setTimeout(resolve, 100 * attempt));
+        await new Promise((resolve) => setTimeout(resolve, 100 * attempt));
       }
     }
 
     throw lastError;
-
   } catch (error) {
     console.error('Error en generateJWT:', error);
     throw new Error(`Fallo en la generación del token: ${error.message}`);

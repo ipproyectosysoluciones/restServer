@@ -12,14 +12,14 @@ const DB_CONFIG = {
     maxPoolSize: 10,
     socketTimeoutMS: 45000,
     serverSelectionTimeoutMS: 15000,
-    family: 4,  // 0 = Acepta IPv4 e IPv6, 4 = solo IPv4, 6 = solo IPv6
+    family: 4, // 0 = Acepta IPv4 e IPv6, 4 = solo IPv4, 6 = solo IPv6
     heartbeatFrequencyMS: 10000,
     minPoolSize: 0,
     maxIdleTimeMS: 30000,
-    waitQueueTimeoutMS: 10000
+    waitQueueTimeoutMS: 10000,
   },
   maxRetries: 3,
-  retryDelay: 5000
+  retryDelay: 5000,
 };
 
 /**
@@ -69,16 +69,21 @@ const dbConnection = async () => {
 
     while (attempts < DB_CONFIG.maxRetries) {
       try {
-        await mongoose.connect(process.env.MONGODB_CNN, DB_CONFIG.connectionOptions);
+        await mongoose.connect(
+          process.env.MONGODB_CNN,
+          DB_CONFIG.connectionOptions,
+        );
         console.log('Database connection established successfully');
         return;
       } catch (error) {
         attempts++;
         console.warn(`Connection attempt ${attempts} failed:`, error.message);
-        
+
         if (attempts < DB_CONFIG.maxRetries) {
-          console.log(`Retrying in ${DB_CONFIG.retryDelay/1000} seconds...`);
-          await new Promise(resolve => setTimeout(resolve, DB_CONFIG.retryDelay));
+          console.log(`Retrying in ${DB_CONFIG.retryDelay / 1000} seconds...`);
+          await new Promise((resolve) =>
+            setTimeout(resolve, DB_CONFIG.retryDelay),
+          );
         }
       }
     }

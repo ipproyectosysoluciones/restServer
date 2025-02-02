@@ -4,6 +4,7 @@ dist
 .env.example
 .vscode
 .git
+.gitkeep
 .gitignore
 .prettierrc
 .prettierignore
@@ -13,4 +14,8 @@ pnpm-lock.yaml
 yarn.lock
 *.html
 *.jpg
+*.png
+*.jpeg
+*.gif
 README.md
+LICENSE

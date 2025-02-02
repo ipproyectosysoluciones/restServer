@@ -12,7 +12,7 @@ const createResponse = (status = 'success', data = null, message = null) => ({
   status,
   ...(data && { data }),
   ...(message && { message }),
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 /**
@@ -21,16 +21,11 @@ const createResponse = (status = 'success', data = null, message = null) => ({
  */
 const getProducts = async (req = request, res = response) => {
   try {
-    const { 
-      limit = 5, 
-      from = 0,
-      sort = 'name',
-      available 
-    } = req.query;
+    const { limit = 5, from = 0, sort = 'name', available } = req.query;
 
-    const query = { 
+    const query = {
       state: true,
-      ...(available !== undefined && { available: available === 'true' })
+      ...(available !== undefined && { available: available === 'true' }),
     };
 
     const [total, products] = await Promise.all([
@@ -40,20 +35,22 @@ const getProducts = async (req = request, res = response) => {
         .populate('category', 'name')
         .sort(sort)
         .skip(Number(from))
-        .limit(Number(limit))
+        .limit(Number(limit)),
     ]);
 
-    return res.json(createResponse('success', {
-      total,
-      page: Math.floor(from / limit) + 1,
-      limit: Number(limit),
-      products
-    }));
+    return res.json(
+      createResponse('success', {
+        total,
+        page: Math.floor(from / limit) + 1,
+        limit: Number(limit),
+        products,
+      }),
+    );
   } catch (error) {
     console.error('Error en getProducts:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al obtener productos')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al obtener productos'));
   }
 };
 
@@ -64,26 +61,26 @@ const getProducts = async (req = request, res = response) => {
 const getProduct = async (req = request, res = response) => {
   try {
     const { id } = req.params;
-    
-    const product = await Product.findOne({ 
+
+    const product = await Product.findOne({
       _id: id,
-      state: true 
+      state: true,
     })
       .populate('user', 'name')
       .populate('category', 'name');
 
     if (!product) {
-      return res.status(404).json(
-        createResponse('error', null, 'Producto no encontrado')
-      );
+      return res
+        .status(404)
+        .json(createResponse('error', null, 'Producto no encontrado'));
     }
 
     return res.json(createResponse('success', { product }));
   } catch (error) {
     console.error('Error en getProduct:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al obtener el producto')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al obtener el producto'));
   }
 };
 
@@ -94,22 +91,28 @@ const getProduct = async (req = request, res = response) => {
 const createProduct = async (req = request, res = response) => {
   try {
     const { state, user, ...productData } = req.body;
-    
+
     const existingProduct = await Product.findOne({
       name: productData.name?.toUpperCase(),
-      state: true
+      state: true,
     });
 
     if (existingProduct) {
-      return res.status(400).json(
-        createResponse('error', null, `El producto ${productData.name} ya existe`)
-      );
+      return res
+        .status(400)
+        .json(
+          createResponse(
+            'error',
+            null,
+            `El producto ${productData.name} ya existe`,
+          ),
+        );
     }
 
     const data = {
       ...productData,
       name: productData.name.toUpperCase(),
-      user: req.authenticatedUser._id
+      user: req.authenticatedUser._id,
     };
 
     const product = new Product(data);
@@ -118,9 +121,9 @@ const createProduct = async (req = request, res = response) => {
     return res.status(201).json(createResponse('success', { product }));
   } catch (error) {
     console.error('Error en createProduct:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al crear el producto')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al crear el producto'));
   }
 };
 
@@ -136,27 +139,27 @@ const updateProduct = async (req = request, res = response) => {
     if (data.name) {
       data.name = data.name.toUpperCase().trim();
     }
-    
+
     data.user = req.authenticatedUser._id;
 
     const product = await Product.findOneAndUpdate(
       { _id: id, state: true },
       data,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).populate('category', 'name');
 
     if (!product) {
-      return res.status(404).json(
-        createResponse('error', null, 'Producto no encontrado')
-      );
+      return res
+        .status(404)
+        .json(createResponse('error', null, 'Producto no encontrado'));
     }
 
     return res.json(createResponse('success', { product }));
   } catch (error) {
     console.error('Error en updateProduct:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al actualizar el producto')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al actualizar el producto'));
   }
 };
 
@@ -171,28 +174,22 @@ const deleteProduct = async (req = request, res = response) => {
     const product = await Product.findOneAndUpdate(
       { _id: id, state: true },
       { state: false },
-      { new: true }
+      { new: true },
     );
 
     if (!product) {
-      return res.status(404).json(
-        createResponse('error', null, 'Producto no encontrado')
-      );
+      return res
+        .status(404)
+        .json(createResponse('error', null, 'Producto no encontrado'));
     }
 
     return res.json(createResponse('success', { product }));
   } catch (error) {
     console.error('Error en deleteProduct:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al eliminar el producto')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al eliminar el producto'));
   }
 };
 
-export { 
-  createProduct, 
-  deleteProduct, 
-  getProduct, 
-  getProducts, 
-  updateProduct 
-};
+export { createProduct, deleteProduct, getProduct, getProducts, updateProduct };

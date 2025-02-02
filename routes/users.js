@@ -31,45 +31,48 @@ const userValidations = {
   create: [
     check('name')
       .trim()
-      .notEmpty().withMessage('El nombre es obligatorio')
-      .isLength({ min: 2, max: 50 }).withMessage('El nombre debe tener entre 2 y 50 caracteres'),
+      .notEmpty()
+      .withMessage('El nombre es obligatorio')
+      .isLength({ min: 2, max: 50 })
+      .withMessage('El nombre debe tener entre 2 y 50 caracteres'),
     check('password')
-      .isLength({ min: 6 }).withMessage('El password debe tener al menos 6 caracteres')
-      .matches(/\d/).withMessage('El password debe contener al menos un número'),
+      .isLength({ min: 6 })
+      .withMessage('El password debe tener al menos 6 caracteres')
+      .matches(/\d/)
+      .withMessage('El password debe contener al menos un número'),
     check('email')
       .trim()
-      .isEmail().withMessage('El email no es válido')
+      .isEmail()
+      .withMessage('El email no es válido')
       .normalizeEmail()
       .custom(existEmail),
     check('role').custom(isRoleValid),
-    validateFields
+    validateFields,
   ],
   update: [
-    check('id')
-      .isMongoId().withMessage('ID no válido')
-      .custom(userIdExist),
+    check('id').isMongoId().withMessage('ID no válido').custom(userIdExist),
     check('role')
-      .optional()  // Hacer el rol opcional en actualizaciones
+      .optional() // Hacer el rol opcional en actualizaciones
       .custom(isRoleValid),
     check('email')
-      .optional()  // Hacer el email opcional
-      .isEmail().withMessage('Email no válido')
+      .optional() // Hacer el email opcional
+      .isEmail()
+      .withMessage('Email no válido')
       .custom(existEmail),
     check('name')
-      .optional()  // Hacer el nombre opcional
+      .optional() // Hacer el nombre opcional
       .trim()
-      .notEmpty().withMessage('El nombre no puede estar vacío')
+      .notEmpty()
+      .withMessage('El nombre no puede estar vacío')
       .isLength({ min: 2, max: 50 }),
-    validateFields
+    validateFields,
   ],
   delete: [
     validateJWT,
     hasRole('ADMIN_ROLE', 'SALES_ROLE'),
-    check('id')
-      .isMongoId().withMessage('ID no válido')
-      .custom(userIdExist),
-    validateFields
-  ]
+    check('id').isMongoId().withMessage('ID no válido').custom(userIdExist),
+    validateFields,
+  ],
 };
 
 /**
@@ -101,10 +104,7 @@ router.put('/:id', userValidations.update, usersPut);
  * @description Actualizar parcialmente un usuario
  * @access Private
  */
-router.patch('/:id', [
-  validateJWT,
-  ...userValidations.update
-], usersPatch);
+router.patch('/:id', [validateJWT, ...userValidations.update], usersPatch);
 
 /**
  * @route DELETE /api/users/:id
@@ -114,8 +114,8 @@ router.patch('/:id', [
  */
 router.delete(
   '/:id',
-  userValidations.delete,  // Usar las validaciones agrupadas
-  usersDelete
+  userValidations.delete, // Usar las validaciones agrupadas
+  usersDelete,
 );
 
 // Prevenir modificaciones del router

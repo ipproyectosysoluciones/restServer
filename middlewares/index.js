@@ -8,7 +8,7 @@ const MIDDLEWARE_REGISTRY = {
   validateFields: './validate-fields.js',
   validateFile: './validate-file.js',
   validateJWT: './validate-jwt.js',
-  validateRoles: './validate-roles.js'
+  validateRoles: './validate-roles.js',
 };
 
 /**
@@ -27,7 +27,7 @@ const validateMiddlewares = async () => {
           console.error(`Failed to load middleware ${name}:`, error);
           return false;
         }
-      })
+      }),
     );
 
     if (!results.every(Boolean)) {
@@ -40,7 +40,7 @@ const validateMiddlewares = async () => {
 };
 
 // Validar middlewares al importar
-validateMiddlewares().catch(error => {
+validateMiddlewares().catch((error) => {
   console.error('Middleware initialization error:', error);
   process.exit(1);
 });

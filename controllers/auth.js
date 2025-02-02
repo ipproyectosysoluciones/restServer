@@ -13,13 +13,13 @@ const createErrorResponse = (code, message) => ({
   status: 'error',
   code,
   message,
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 const createSuccessResponse = (data) => ({
   status: 'success',
   data,
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 /**
@@ -33,47 +33,41 @@ const login = async (req = request, res = response) => {
     const { email, password } = req.body;
 
     // Buscar usuario y validar estado en una sola consulta
-    const user = await User.findOne({ 
-      email, 
-      state: true 
+    const user = await User.findOne({
+      email,
+      state: true,
     }).select('+password');
 
     if (!user) {
-      return res.status(401).json(
-        createErrorResponse(
-          'AUTH_FAILED',
-          'Credenciales incorrectas'
-        )
-      );
+      return res
+        .status(401)
+        .json(createErrorResponse('AUTH_FAILED', 'Credenciales incorrectas'));
     }
 
     // Validar contraseña
     const validPassword = await bcryptjs.compare(password, user.password);
     if (!validPassword) {
-      return res.status(401).json(
-        createErrorResponse(
-          'AUTH_FAILED',
-          'Credenciales incorrectas'
-        )
-      );
+      return res
+        .status(401)
+        .json(createErrorResponse('AUTH_FAILED', 'Credenciales incorrectas'));
     }
 
     // Generar JWT
     const token = await generateJWT(user.id);
 
-    return res.json(createSuccessResponse({
-      user: user.toJSON(),
-      token
-    }));
-
+    return res.json(
+      createSuccessResponse({
+        user: user.toJSON(),
+        token,
+      }),
+    );
   } catch (error) {
     console.error('Error en login:', error);
-    return res.status(500).json(
-      createErrorResponse(
-        'INTERNAL_ERROR',
-        'Error interno del servidor'
-      )
-    );
+    return res
+      .status(500)
+      .json(
+        createErrorResponse('INTERNAL_ERROR', 'Error interno del servidor'),
+      );
   }
 };
 
@@ -99,7 +93,7 @@ const googleSigIn = async (req = request, res = response) => {
         password: ':P',
         img,
         google: true,
-        role: 'USER_ROLE' // Role por defecto para usuarios de Google
+        role: 'USER_ROLE', // Role por defecto para usuarios de Google
       };
 
       user = new User(userData);
@@ -107,29 +101,34 @@ const googleSigIn = async (req = request, res = response) => {
     }
 
     if (!user.state) {
-      return res.status(403).json(
-        createErrorResponse(
-          'USER_BLOCKED',
-          'Usuario bloqueado. Contacte al administrador'
-        )
-      );
+      return res
+        .status(403)
+        .json(
+          createErrorResponse(
+            'USER_BLOCKED',
+            'Usuario bloqueado. Contacte al administrador',
+          ),
+        );
     }
 
     const token = await generateJWT(user.id);
 
-    return res.json(createSuccessResponse({
-      user: user.toJSON(),
-      token
-    }));
-
+    return res.json(
+      createSuccessResponse({
+        user: user.toJSON(),
+        token,
+      }),
+    );
   } catch (error) {
     console.error('Error en Google Sign-in:', error);
-    return res.status(401).json(
-      createErrorResponse(
-        'GOOGLE_AUTH_FAILED',
-        'Error en la autenticación con Google'
-      )
-    );
+    return res
+      .status(401)
+      .json(
+        createErrorResponse(
+          'GOOGLE_AUTH_FAILED',
+          'Error en la autenticación con Google',
+        ),
+      );
   }
 };
 

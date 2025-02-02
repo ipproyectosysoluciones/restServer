@@ -8,7 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOAD_CONFIG = {
   validExtensions: ['png', 'jpg', 'jpeg', 'gif'],
   maxFileSize: 5 * 1024 * 1024, // 5MB
-  uploadDir: path.join(__dirname, '../uploads')
+  uploadDir: path.join(__dirname, '../uploads'),
 };
 
 /**
@@ -22,11 +22,15 @@ const validateFile = (file, validExtensions) => {
 
   const extension = file.name.split('.').pop().toLowerCase();
   if (!validExtensions.includes(extension)) {
-    throw new Error(`Extensión no permitida. Válidas: ${validExtensions.join(', ')}`);
+    throw new Error(
+      `Extensión no permitida. Válidas: ${validExtensions.join(', ')}`,
+    );
   }
 
   if (file.size > UPLOAD_CONFIG.maxFileSize) {
-    throw new Error(`Tamaño máximo permitido: ${UPLOAD_CONFIG.maxFileSize / 1024 / 1024}MB`);
+    throw new Error(
+      `Tamaño máximo permitido: ${UPLOAD_CONFIG.maxFileSize / 1024 / 1024}MB`,
+    );
   }
 };
 
@@ -34,7 +38,11 @@ const validateFile = (file, validExtensions) => {
  * @name uploadFile
  * @description Sube un archivo al servidor de forma segura
  */
-const uploadFile = async (files, validExtensions = UPLOAD_CONFIG.validExtensions, folder = '') => {
+const uploadFile = async (
+  files,
+  validExtensions = UPLOAD_CONFIG.validExtensions,
+  folder = '',
+) => {
   try {
     const { file } = files;
     validateFile(file, validExtensions);
@@ -59,7 +67,6 @@ const uploadFile = async (files, validExtensions = UPLOAD_CONFIG.validExtensions
         resolve(fileName);
       });
     });
-
   } catch (error) {
     console.error('Error en uploadFile:', error);
     throw error;

@@ -9,7 +9,7 @@ const controllers = {
   categories: () => import('./categories.js'),
   products: () => import('./products.js'),
   search: () => import('./search.js'),
-  uploads: () => import('./uploads.js')
+  uploads: () => import('./uploads.js'),
 };
 
 /**
@@ -26,7 +26,7 @@ const validateControllers = async () => {
         } catch {
           return false;
         }
-      })
+      }),
     );
 
     if (!results.every(Boolean)) {
@@ -38,7 +38,7 @@ const validateControllers = async () => {
 };
 
 // Validar controladores al importar
-validateControllers().catch(error => {
+validateControllers().catch((error) => {
   console.error('Controller initialization error:', error);
   process.exit(1);
 });

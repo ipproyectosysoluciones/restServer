@@ -12,7 +12,7 @@ const createResponse = (status = 'success', data = null, message = null) => ({
   status,
   ...(data && { data }),
   ...(message && { message }),
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 /**
@@ -21,11 +21,7 @@ const createResponse = (status = 'success', data = null, message = null) => ({
  */
 const getCategories = async (req = request, res = response) => {
   try {
-    const { 
-      limit = 5, 
-      from = 0,
-      sort = 'name' 
-    } = req.query;
+    const { limit = 5, from = 0, sort = 'name' } = req.query;
     const query = { state: true };
 
     const [total, categories] = await Promise.all([
@@ -34,20 +30,22 @@ const getCategories = async (req = request, res = response) => {
         .populate('user', 'name')
         .sort(sort)
         .skip(Number(from))
-        .limit(Number(limit))
+        .limit(Number(limit)),
     ]);
 
-    return res.json(createResponse('success', {
-      total,
-      page: Math.floor(from / limit) + 1,
-      limit: Number(limit),
-      categories
-    }));
+    return res.json(
+      createResponse('success', {
+        total,
+        page: Math.floor(from / limit) + 1,
+        limit: Number(limit),
+        categories,
+      }),
+    );
   } catch (error) {
     console.error('Error en getCategories:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al obtener categorías')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al obtener categorías'));
   }
 };
 
@@ -58,23 +56,23 @@ const getCategories = async (req = request, res = response) => {
 const getCategory = async (req = request, res = response) => {
   try {
     const { id } = req.params;
-    const category = await Category.findOne({ 
-      _id: id, 
-      state: true 
+    const category = await Category.findOne({
+      _id: id,
+      state: true,
     }).populate('user', 'name');
 
     if (!category) {
-      return res.status(404).json(
-        createResponse('error', null, 'Categoría no encontrada')
-      );
+      return res
+        .status(404)
+        .json(createResponse('error', null, 'Categoría no encontrada'));
     }
 
     return res.json(createResponse('success', { category }));
   } catch (error) {
     console.error('Error en getCategory:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al obtener la categoría')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al obtener la categoría'));
   }
 };
 
@@ -85,21 +83,21 @@ const getCategory = async (req = request, res = response) => {
 const createCategory = async (req = request, res = response) => {
   try {
     const name = req.body.name.toUpperCase().trim();
-    
-    const existingCategory = await Category.findOne({ 
+
+    const existingCategory = await Category.findOne({
       name,
-      state: true 
+      state: true,
     });
 
     if (existingCategory) {
-      return res.status(400).json(
-        createResponse('error', null, `La categoría ${name} ya existe`)
-      );
+      return res
+        .status(400)
+        .json(createResponse('error', null, `La categoría ${name} ya existe`));
     }
 
     const category = new Category({
       name,
-      user: req.authenticatedUser._id
+      user: req.authenticatedUser._id,
     });
 
     await category.save();
@@ -107,9 +105,9 @@ const createCategory = async (req = request, res = response) => {
     return res.status(201).json(createResponse('success', { category }));
   } catch (error) {
     console.error('Error en createCategory:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al crear la categoría')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al crear la categoría'));
   }
 };
 
@@ -128,21 +126,21 @@ const updateCategory = async (req = request, res = response) => {
     const category = await Category.findOneAndUpdate(
       { _id: id, state: true },
       data,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!category) {
-      return res.status(404).json(
-        createResponse('error', null, 'Categoría no encontrada')
-      );
+      return res
+        .status(404)
+        .json(createResponse('error', null, 'Categoría no encontrada'));
     }
 
     return res.json(createResponse('success', { category }));
   } catch (error) {
     console.error('Error en updateCategory:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al actualizar la categoría')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al actualizar la categoría'));
   }
 };
 
@@ -157,21 +155,21 @@ const deleteCategory = async (req = request, res = response) => {
     const category = await Category.findOneAndUpdate(
       { _id: id, state: true },
       { state: false },
-      { new: true }
+      { new: true },
     );
 
     if (!category) {
-      return res.status(404).json(
-        createResponse('error', null, 'Categoría no encontrada')
-      );
+      return res
+        .status(404)
+        .json(createResponse('error', null, 'Categoría no encontrada'));
     }
 
     return res.json(createResponse('success', { category }));
   } catch (error) {
     console.error('Error en deleteCategory:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al eliminar la categoría')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al eliminar la categoría'));
   }
 };
 
@@ -180,5 +178,5 @@ export {
   deleteCategory,
   getCategories,
   getCategory,
-  updateCategory
+  updateCategory,
 };

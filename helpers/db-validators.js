@@ -28,7 +28,7 @@ const isRoleValid = async (role = '') => {
     if (!existRole) {
       throw new ValidationError(
         'INVALID_ROLE',
-        `El rol ${role} no está registrado en la base de datos`
+        `El rol ${role} no está registrado en la base de datos`,
       );
     }
 
@@ -37,7 +37,10 @@ const isRoleValid = async (role = '') => {
     if (error instanceof ValidationError) {
       throw error;
     }
-    throw new ValidationError('VALIDATION_ERROR', `Error validando rol: ${error.message}`);
+    throw new ValidationError(
+      'VALIDATION_ERROR',
+      `Error validando rol: ${error.message}`,
+    );
   }
 };
 
@@ -51,15 +54,15 @@ const existEmail = async (email = '') => {
       throw new ValidationError('EMAIL_REQUIRED', 'El email es requerido');
     }
 
-    const existingEmail = await User.findOne({ 
+    const existingEmail = await User.findOne({
       email: email.toLowerCase(),
-      state: true 
+      state: true,
     });
 
     if (existingEmail) {
       throw new ValidationError(
         'EMAIL_EXISTS',
-        `El email ${email} ya está registrado`
+        `El email ${email} ya está registrado`,
       );
     }
 
@@ -68,7 +71,10 @@ const existEmail = async (email = '') => {
     if (error instanceof ValidationError) {
       throw error;
     }
-    throw new ValidationError('VALIDATION_ERROR', `Error validando email: ${error.message}`);
+    throw new ValidationError(
+      'VALIDATION_ERROR',
+      `Error validando email: ${error.message}`,
+    );
   }
 };
 
@@ -81,7 +87,7 @@ const validateId = async (id, Model, entityName) => {
     if (!id?.match(/^[0-9a-fA-F]{24}$/)) {
       throw new ValidationError(
         'INVALID_ID',
-        `El ID proporcionado no es válido`
+        `El ID proporcionado no es válido`,
       );
     }
 
@@ -89,7 +95,7 @@ const validateId = async (id, Model, entityName) => {
     if (!document) {
       throw new ValidationError(
         'NOT_FOUND',
-        `No existe ${entityName} con el ID: ${id}`
+        `No existe ${entityName} con el ID: ${id}`,
       );
     }
 
@@ -98,7 +104,10 @@ const validateId = async (id, Model, entityName) => {
     if (error instanceof ValidationError) {
       throw error;
     }
-    throw new ValidationError('VALIDATION_ERROR', `Error validando ID: ${error.message}`);
+    throw new ValidationError(
+      'VALIDATION_ERROR',
+      `Error validando ID: ${error.message}`,
+    );
   }
 };
 
@@ -114,13 +123,16 @@ const productIdExit = (id) => validateId(id, Product, 'producto');
 const collectionsAllowed = (collection = '', allowedCollections = []) => {
   try {
     if (!collection) {
-      throw new ValidationError('COLLECTION_REQUIRED', 'La colección es requerida');
+      throw new ValidationError(
+        'COLLECTION_REQUIRED',
+        'La colección es requerida',
+      );
     }
 
     if (!allowedCollections.includes(collection)) {
       throw new ValidationError(
         'INVALID_COLLECTION',
-        `Colección no permitida. Permitidas: ${allowedCollections.join(', ')}`
+        `Colección no permitida. Permitidas: ${allowedCollections.join(', ')}`,
       );
     }
 
@@ -129,7 +141,10 @@ const collectionsAllowed = (collection = '', allowedCollections = []) => {
     if (error instanceof ValidationError) {
       throw error;
     }
-    throw new ValidationError('VALIDATION_ERROR', `Error validando colección: ${error.message}`);
+    throw new ValidationError(
+      'VALIDATION_ERROR',
+      `Error validando colección: ${error.message}`,
+    );
   }
 };
 
@@ -139,5 +154,5 @@ export {
   existEmail,
   productIdExit,
   userIdExist,
-  isRoleValid
+  isRoleValid,
 };

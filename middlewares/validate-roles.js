@@ -11,7 +11,7 @@ import { request, response } from 'express';
 const ROLE_ERRORS = {
   NO_TOKEN_VALIDATION: 'TOKEN_VALIDATION_REQUIRED',
   INSUFFICIENT_PERMISSIONS: 'INSUFFICIENT_PERMISSIONS',
-  INVALID_ROLE: 'INVALID_ROLE'
+  INVALID_ROLE: 'INVALID_ROLE',
 };
 
 /**
@@ -22,7 +22,7 @@ const createErrorResponse = (code, message) => ({
   status: 'error',
   code,
   message,
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 /**
@@ -35,31 +35,40 @@ const createErrorResponse = (code, message) => ({
 export const isAdminRole = (req = request, res = response, next) => {
   try {
     if (!req.authenticatedUser) {
-      return res.status(500).json(
-        createErrorResponse(
-          ROLE_ERRORS.NO_TOKEN_VALIDATION,
-          'Se requiere validación de token antes de verificar el rol'
-        )
-      );
+      return res
+        .status(500)
+        .json(
+          createErrorResponse(
+            ROLE_ERRORS.NO_TOKEN_VALIDATION,
+            'Se requiere validación de token antes de verificar el rol',
+          ),
+        );
     }
 
     const { role, name } = req.authenticatedUser;
 
     if (role !== 'ADMIN_ROLE') {
-      return res.status(403).json(
-        createErrorResponse(
-          ROLE_ERRORS.INSUFFICIENT_PERMISSIONS,
-          `${name} no tiene permisos de administrador para esta acción`
-        )
-      );
+      return res
+        .status(403)
+        .json(
+          createErrorResponse(
+            ROLE_ERRORS.INSUFFICIENT_PERMISSIONS,
+            `${name} no tiene permisos de administrador para esta acción`,
+          ),
+        );
     }
 
     next();
   } catch (error) {
     console.error('Error en validación de rol admin:', error);
-    return res.status(500).json(
-      createErrorResponse('ROLE_VALIDATION_ERROR', 'Error interno en validación de rol')
-    );
+    return res
+      .status(500)
+      .json(
+        createErrorResponse(
+          'ROLE_VALIDATION_ERROR',
+          'Error interno en validación de rol',
+        ),
+      );
   }
 };
 
@@ -77,31 +86,40 @@ export const hasRole = (...roles) => {
       }
 
       if (!req.authenticatedUser) {
-        return res.status(500).json(
-          createErrorResponse(
-            ROLE_ERRORS.NO_TOKEN_VALIDATION,
-            'Se requiere validación de token antes de verificar roles'
-          )
-        );
+        return res
+          .status(500)
+          .json(
+            createErrorResponse(
+              ROLE_ERRORS.NO_TOKEN_VALIDATION,
+              'Se requiere validación de token antes de verificar roles',
+            ),
+          );
       }
 
       const userRole = req.authenticatedUser.role?.toUpperCase();
-      
+
       if (!userRole || !roles.includes(userRole)) {
-        return res.status(403).json(
-          createErrorResponse(
-            ROLE_ERRORS.INVALID_ROLE,
-            `Se requiere uno de los siguientes roles: ${roles.join(', ')}`
-          )
-        );
+        return res
+          .status(403)
+          .json(
+            createErrorResponse(
+              ROLE_ERRORS.INVALID_ROLE,
+              `Se requiere uno de los siguientes roles: ${roles.join(', ')}`,
+            ),
+          );
       }
 
       next();
     } catch (error) {
       console.error('Error en validación de roles:', error);
-      return res.status(500).json(
-        createErrorResponse('ROLE_VALIDATION_ERROR', 'Error interno en validación de roles')
-      );
+      return res
+        .status(500)
+        .json(
+          createErrorResponse(
+            'ROLE_VALIDATION_ERROR',
+            'Error interno en validación de roles',
+          ),
+        );
     }
   };
 };

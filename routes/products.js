@@ -28,49 +28,49 @@ const router = Router();
 // Validaciones comunes
 const productValidations = {
   getById: [
-    check('id')
-      .isMongoId().withMessage('ID no válido')
-      .custom(productIdExit),
-    validateFields
+    check('id').isMongoId().withMessage('ID no válido').custom(productIdExit),
+    validateFields,
   ],
   create: [
     validateJWT,
     check('name')
       .trim()
-      .notEmpty().withMessage('El nombre es obligatorio')
-      .isLength({ min: 3, max: 100 }).withMessage('El nombre debe tener entre 3 y 100 caracteres'),
+      .notEmpty()
+      .withMessage('El nombre es obligatorio')
+      .isLength({ min: 3, max: 100 })
+      .withMessage('El nombre debe tener entre 3 y 100 caracteres'),
     check('category')
-      .isMongoId().withMessage('ID de categoría no válido')
+      .isMongoId()
+      .withMessage('ID de categoría no válido')
       .custom(categoryIdExit),
     check('price')
       .optional()
-      .isFloat({ min: 0 }).withMessage('El precio debe ser un número positivo'),
-    validateFields
+      .isFloat({ min: 0 })
+      .withMessage('El precio debe ser un número positivo'),
+    validateFields,
   ],
   update: [
     validateJWT,
-    check('id')
-      .isMongoId().withMessage('ID no válido')
-      .custom(productIdExit),
+    check('id').isMongoId().withMessage('ID no válido').custom(productIdExit),
     check('name')
       .optional()
       .trim()
-      .notEmpty().withMessage('El nombre no puede estar vacío')
+      .notEmpty()
+      .withMessage('El nombre no puede estar vacío')
       .isLength({ min: 3, max: 100 }),
     check('category')
       .optional()
-      .isMongoId().withMessage('ID de categoría no válido')
+      .isMongoId()
+      .withMessage('ID de categoría no válido')
       .custom(categoryIdExit),
-    validateFields
+    validateFields,
   ],
   delete: [
     validateJWT,
     isAdminRole,
-    check('id')
-      .isMongoId().withMessage('ID no válido')
-      .custom(productIdExit),
-    validateFields
-  ]
+    check('id').isMongoId().withMessage('ID no válido').custom(productIdExit),
+    validateFields,
+  ],
 };
 
 /**

@@ -16,7 +16,7 @@ const createErrorResponse = (code, message, errors = []) => ({
   status: 'error',
   code,
   ...(errors.length ? { errors } : { message }),
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 /**
@@ -26,37 +26,49 @@ const createErrorResponse = (code, message, errors = []) => ({
 export const validateFields = async (req, res, next) => {
   try {
     const errors = validationResult(req);
-    
-    if (!errors.isEmpty()) {
-      const formattedErrors = errors.array().map(({ param, msg, location }) => ({
-        field: param,
-        message: msg,
-        location
-      }));
 
-      return res.status(400).json(
-        createErrorResponse('VALIDATION_ERROR', null, formattedErrors)
-      );
+    if (!errors.isEmpty()) {
+      const formattedErrors = errors
+        .array()
+        .map(({ param, msg, location }) => ({
+          field: param,
+          message: msg,
+          location,
+        }));
+
+      return res
+        .status(400)
+        .json(createErrorResponse('VALIDATION_ERROR', null, formattedErrors));
     }
 
     // Solo validar body vacío en POST
     if (req.method === 'POST' && !hasValidBody(req)) {
-      return res.status(400).json(
-        createErrorResponse('EMPTY_BODY', 'Se requieren datos para crear el recurso')
-      );
+      return res
+        .status(400)
+        .json(
+          createErrorResponse(
+            'EMPTY_BODY',
+            'Se requieren datos para crear el recurso',
+          ),
+        );
     }
 
     next();
   } catch (error) {
     console.error('Validation error:', error);
-    return res.status(500).json(
-      createErrorResponse('VALIDATION_SYSTEM_ERROR', 'Error interno en la validación')
-    );
+    return res
+      .status(500)
+      .json(
+        createErrorResponse(
+          'VALIDATION_SYSTEM_ERROR',
+          'Error interno en la validación',
+        ),
+      );
   }
 };
 
 // Funciones auxiliares
-const shouldValidateBody = (req) => 
+const shouldValidateBody = (req) =>
   ['POST', 'PUT', 'PATCH'].includes(req.method);
 
 const hasValidBody = (req) => {
@@ -64,7 +76,7 @@ const hasValidBody = (req) => {
   if (['GET', 'DELETE'].includes(req.method)) {
     return true;
   }
-  
+
   // Para PUT y PATCH, permitir actualización parcial
   if (['PUT', 'PATCH'].includes(req.method)) {
     return req.body && typeof req.body === 'object';

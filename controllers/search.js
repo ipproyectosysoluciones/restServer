@@ -13,14 +13,14 @@ const COLLECTIONS = {
   USERS: 'users',
   CATEGORIES: 'categories',
   PRODUCTS: 'products',
-  ROLES: 'roles'
+  ROLES: 'roles',
 };
 
 const createResponse = (status = 'success', data = null, message = null) => ({
   status,
   ...(data && { data }),
   ...(message && { message }),
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 /**
@@ -30,30 +30,34 @@ const createResponse = (status = 'success', data = null, message = null) => ({
 const searchUsers = async (term, res = response) => {
   try {
     let query = { state: true };
-    
+
     if (mongoose.Types.ObjectId.isValid(term)) {
       const user = await User.findOne({ _id: term, ...query });
-      return res.json(createResponse('success', {
-        results: user ? [user] : [],
-        total: user ? 1 : 0
-      }));
+      return res.json(
+        createResponse('success', {
+          results: user ? [user] : [],
+          total: user ? 1 : 0,
+        }),
+      );
     }
 
     const regex = new RegExp(term, 'i');
     const users = await User.find({
       ...query,
-      $or: [{ name: regex }, { email: regex }]
+      $or: [{ name: regex }, { email: regex }],
     });
 
-    return res.json(createResponse('success', {
-      results: users,
-      total: users.length
-    }));
+    return res.json(
+      createResponse('success', {
+        results: users,
+        total: users.length,
+      }),
+    );
   } catch (error) {
     console.error('Error en searchUsers:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error en la búsqueda de usuarios')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error en la búsqueda de usuarios'));
   }
 };
 
@@ -67,27 +71,33 @@ const searchCategories = async (term, res = response) => {
 
     if (mongoose.Types.ObjectId.isValid(term)) {
       const category = await Category.findOne({ _id: term, ...query });
-      return res.json(createResponse('success', {
-        results: category ? [category] : [],
-        total: category ? 1 : 0
-      }));
+      return res.json(
+        createResponse('success', {
+          results: category ? [category] : [],
+          total: category ? 1 : 0,
+        }),
+      );
     }
 
     const regex = new RegExp(term, 'i');
     const categories = await Category.find({
       name: regex,
-      ...query
+      ...query,
     });
 
-    return res.json(createResponse('success', {
-      results: categories,
-      total: categories.length
-    }));
+    return res.json(
+      createResponse('success', {
+        results: categories,
+        total: categories.length,
+      }),
+    );
   } catch (error) {
     console.error('Error en searchCategories:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error en la búsqueda de categorías')
-    );
+    return res
+      .status(500)
+      .json(
+        createResponse('error', null, 'Error en la búsqueda de categorías'),
+      );
   }
 };
 
@@ -104,29 +114,33 @@ const searchProducts = async (term, res = response) => {
         .populate('category', 'name')
         .populate('user', 'name');
 
-      return res.json(createResponse('success', {
-        results: product ? [product] : [],
-        total: product ? 1 : 0
-      }));
+      return res.json(
+        createResponse('success', {
+          results: product ? [product] : [],
+          total: product ? 1 : 0,
+        }),
+      );
     }
 
     const regex = new RegExp(term, 'i');
     const products = await Product.find({
       name: regex,
-      ...query
+      ...query,
     })
       .populate('category', 'name')
       .populate('user', 'name');
 
-    return res.json(createResponse('success', {
-      results: products,
-      total: products.length
-    }));
+    return res.json(
+      createResponse('success', {
+        results: products,
+        total: products.length,
+      }),
+    );
   } catch (error) {
     console.error('Error en searchProducts:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error en la búsqueda de productos')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error en la búsqueda de productos'));
   }
 };
 
@@ -139,32 +153,36 @@ const search = async (req = request, res = response) => {
     const { collection, term } = req.params;
 
     if (!Object.values(COLLECTIONS).includes(collection)) {
-      return res.status(400).json(
-        createResponse('error', null, 
-          `Colección no válida. Permitidas: ${Object.values(COLLECTIONS).join(', ')}`
-        )
-      );
+      return res
+        .status(400)
+        .json(
+          createResponse(
+            'error',
+            null,
+            `Colección no válida. Permitidas: ${Object.values(COLLECTIONS).join(', ')}`,
+          ),
+        );
     }
 
     const searchFunctions = {
       [COLLECTIONS.USERS]: () => searchUsers(term, res),
       [COLLECTIONS.CATEGORIES]: () => searchCategories(term, res),
-      [COLLECTIONS.PRODUCTS]: () => searchProducts(term, res)
+      [COLLECTIONS.PRODUCTS]: () => searchProducts(term, res),
     };
 
     const searchFunction = searchFunctions[collection];
     if (!searchFunction) {
-      return res.status(500).json(
-        createResponse('error', null, 'Búsqueda no implementada')
-      );
+      return res
+        .status(500)
+        .json(createResponse('error', null, 'Búsqueda no implementada'));
     }
 
     await searchFunction();
   } catch (error) {
     console.error('Error en búsqueda:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error interno en la búsqueda')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error interno en la búsqueda'));
   }
 };
 

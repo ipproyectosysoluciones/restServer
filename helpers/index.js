@@ -8,7 +8,7 @@ const HELPER_REGISTRY = {
   dbValidators: './db-validators.js',
   generateJWT: './generate-jwt.js',
   googleVerify: './google-verify.js',
-  uploadFile: './upload-file.js'
+  uploadFile: './upload-file.js',
 };
 
 /**
@@ -27,7 +27,7 @@ const validateHelpers = async () => {
           console.error(`Failed to load helper ${name}:`, error);
           return false;
         }
-      })
+      }),
     );
 
     if (!results.every(Boolean)) {
@@ -40,7 +40,7 @@ const validateHelpers = async () => {
 };
 
 // Validar helpers al importar
-validateHelpers().catch(error => {
+validateHelpers().catch((error) => {
   console.error('Helper initialization error:', error);
   process.exit(1);
 });

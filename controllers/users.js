@@ -14,7 +14,7 @@ const createResponse = (status = 'success', data = null, message = null) => ({
   status,
   ...(data && { data }),
   ...(message && { message }),
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 /**
@@ -24,33 +24,28 @@ const createResponse = (status = 'success', data = null, message = null) => ({
  */
 const usersGet = async (req = request, res = response) => {
   try {
-    const { 
-      limit = 5, 
-      from = 0,
-      sort = 'name'
-    } = req.query;
+    const { limit = 5, from = 0, sort = 'name' } = req.query;
 
     const query = { state: true };
 
     const [total, users] = await Promise.all([
       User.countDocuments(query),
-      User.find(query)
-        .sort(sort)
-        .skip(Number(from))
-        .limit(Number(limit))
+      User.find(query).sort(sort).skip(Number(from)).limit(Number(limit)),
     ]);
 
-    return res.json(createResponse('success', {
-      total,
-      page: Math.floor(from / limit) + 1,
-      limit: Number(limit),
-      users
-    }));
+    return res.json(
+      createResponse('success', {
+        total,
+        page: Math.floor(from / limit) + 1,
+        limit: Number(limit),
+        users,
+      }),
+    );
   } catch (error) {
     console.error('Error en usersGet:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al obtener usuarios')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al obtener usuarios'));
   }
 };
 
@@ -62,11 +57,11 @@ const usersPost = async (req = request, res = response) => {
   try {
     const { name, email, password, role } = req.body;
 
-    const user = new User({ 
-      name, 
-      email: email.toLowerCase(), 
-      password, 
-      role 
+    const user = new User({
+      name,
+      email: email.toLowerCase(),
+      password,
+      role,
     });
 
     // Encriptar contraseña
@@ -78,9 +73,9 @@ const usersPost = async (req = request, res = response) => {
     return res.status(201).json(createResponse('success', { user }));
   } catch (error) {
     console.error('Error en usersPost:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al crear usuario')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al crear usuario'));
   }
 };
 
@@ -98,24 +93,23 @@ const usersPut = async (req = request, res = response) => {
       rest.password = bcryptjs.hashSync(password, salt);
     }
 
-    const user = await User.findByIdAndUpdate(
-      id, 
-      rest, 
-      { new: true, runValidators: true }
-    );
+    const user = await User.findByIdAndUpdate(id, rest, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!user) {
-      return res.status(404).json(
-        createResponse('error', null, 'Usuario no encontrado')
-      );
+      return res
+        .status(404)
+        .json(createResponse('error', null, 'Usuario no encontrado'));
     }
 
     return res.json(createResponse('success', { user }));
   } catch (error) {
     console.error('Error en usersPut:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al actualizar usuario')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al actualizar usuario'));
   }
 };
 
@@ -131,21 +125,21 @@ const usersPatch = async (req = request, res = response) => {
     const user = await User.findByIdAndUpdate(
       id,
       { $set: updates },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!user) {
-      return res.status(404).json(
-        createResponse('error', null, 'Usuario no encontrado')
-      );
+      return res
+        .status(404)
+        .json(createResponse('error', null, 'Usuario no encontrado'));
     }
 
     return res.json(createResponse('success', { user }));
   } catch (error) {
     console.error('Error en usersPatch:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al actualizar usuario')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al actualizar usuario'));
   }
 };
 
@@ -160,21 +154,21 @@ const usersDelete = async (req = request, res = response) => {
     const user = await User.findByIdAndUpdate(
       id,
       { state: false },
-      { new: true }
+      { new: true },
     );
 
     if (!user) {
-      return res.status(404).json(
-        createResponse('error', null, 'Usuario no encontrado')
-      );
+      return res
+        .status(404)
+        .json(createResponse('error', null, 'Usuario no encontrado'));
     }
 
     return res.json(createResponse('success', { user }));
   } catch (error) {
     console.error('Error en usersDelete:', error);
-    return res.status(500).json(
-      createResponse('error', null, 'Error al eliminar usuario')
-    );
+    return res
+      .status(500)
+      .json(createResponse('error', null, 'Error al eliminar usuario'));
   }
 };
 

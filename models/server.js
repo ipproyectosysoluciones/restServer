@@ -8,7 +8,7 @@ class Server {
   constructor() {
     this.app = express();
     this.port = process.env.PORT || 3000;
-    
+
     // Definición centralizada de rutas
     this.paths = {
       auth: '/api/auth',
@@ -43,11 +43,13 @@ class Server {
 
   middlewares() {
     // CORS con opciones de seguridad
-    this.app.use(cors({
-      origin: process.env.CORS_ORIGIN || '*',
-      methods: ['GET', 'POST', 'PUT', 'DELETE'],
-      allowedHeaders: ['Content-Type', 'Authorization']
-    }));
+    this.app.use(
+      cors({
+        origin: process.env.CORS_ORIGIN || '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+      }),
+    );
 
     // Parser JSON con límite
     this.app.use(express.json({ limit: '10mb' }));
@@ -56,12 +58,14 @@ class Server {
     this.app.use(express.static('public'));
 
     // Configuración de subida de archivos
-    this.app.use(fileUpload({
-      useTempFiles: true,
-      tempFileDir: '/tmp/',
-      createParentPath: true,
-      limits: { fileSize: 50 * 1024 * 1024 } // 50MB max
-    }));
+    this.app.use(
+      fileUpload({
+        useTempFiles: true,
+        tempFileDir: '/tmp/',
+        createParentPath: true,
+        limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
+      }),
+    );
   }
 
   routes() {
@@ -72,8 +76,8 @@ class Server {
 
     // Manejo de rutas no encontradas
     this.app.use('*', (req, res) => {
-      res.status(404).json({ 
-        msg: `Route ${req.originalUrl} not found`
+      res.status(404).json({
+        msg: `Route ${req.originalUrl} not found`,
       });
     });
   }

@@ -26,38 +26,36 @@ const router = Router();
 // Validaciones comunes
 const categoryValidations = {
   getById: [
-    check('id')
-      .isMongoId().withMessage('ID no válido')
-      .custom(categoryIdExit),
-    validateFields
+    check('id').isMongoId().withMessage('ID no válido').custom(categoryIdExit),
+    validateFields,
   ],
   create: [
     validateJWT,
     check('name')
       .trim()
-      .notEmpty().withMessage('El nombre es obligatorio')
-      .isLength({ min: 3, max: 50 }).withMessage('El nombre debe tener entre 3 y 50 caracteres'),
-    validateFields
+      .notEmpty()
+      .withMessage('El nombre es obligatorio')
+      .isLength({ min: 3, max: 50 })
+      .withMessage('El nombre debe tener entre 3 y 50 caracteres'),
+    validateFields,
   ],
   update: [
     validateJWT,
-    check('id')
-      .isMongoId().withMessage('ID no válido')
-      .custom(categoryIdExit),
+    check('id').isMongoId().withMessage('ID no válido').custom(categoryIdExit),
     check('name')
       .trim()
-      .notEmpty().withMessage('El nombre es obligatorio')
-      .isLength({ min: 3, max: 50 }).withMessage('El nombre debe tener entre 3 y 50 caracteres'),
-    validateFields
+      .notEmpty()
+      .withMessage('El nombre es obligatorio')
+      .isLength({ min: 3, max: 50 })
+      .withMessage('El nombre debe tener entre 3 y 50 caracteres'),
+    validateFields,
   ],
   delete: [
     validateJWT,
     isAdminRole,
-    check('id')
-      .isMongoId().withMessage('ID no válido')
-      .custom(categoryIdExit),
-    validateFields
-  ]
+    check('id').isMongoId().withMessage('ID no válido').custom(categoryIdExit),
+    validateFields,
+  ],
 };
 
 /**

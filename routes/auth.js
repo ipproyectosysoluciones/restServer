@@ -42,7 +42,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 /**
@@ -70,7 +70,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 // Prevenir modificación del router después de su configuración

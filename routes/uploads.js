@@ -5,7 +5,7 @@ import { collectionsAllowed } from '../helpers/index.js';
 import {
   showImage,
   uploadFile,
-  updateImageCloudinary
+  updateImageCloudinary,
 } from '../controllers/index.js';
 
 /**
@@ -23,24 +23,20 @@ const ALLOWED_COLLECTIONS = ['users', 'products'];
 // Validaciones comunes
 const uploadValidations = {
   getImage: [
-    check('id')
-      .isMongoId().withMessage('ID no válido')
-      .trim(),
+    check('id').isMongoId().withMessage('ID no válido').trim(),
     check('collection')
-      .custom(c => collectionsAllowed(c, ALLOWED_COLLECTIONS))
+      .custom((c) => collectionsAllowed(c, ALLOWED_COLLECTIONS))
       .withMessage(`Colecciones permitidas: ${ALLOWED_COLLECTIONS.join(', ')}`),
-    validateFields
+    validateFields,
   ],
   updateImage: [
     validateFileUpload,
-    check('id')
-      .isMongoId().withMessage('ID no válido')
-      .trim(),
+    check('id').isMongoId().withMessage('ID no válido').trim(),
     check('collection')
-      .custom(c => collectionsAllowed(c, ALLOWED_COLLECTIONS))
+      .custom((c) => collectionsAllowed(c, ALLOWED_COLLECTIONS))
       .withMessage(`Colecciones permitidas: ${ALLOWED_COLLECTIONS.join(', ')}`),
-    validateFields
-  ]
+    validateFields,
+  ],
 };
 
 /**
@@ -48,11 +44,7 @@ const uploadValidations = {
  * @description Obtener imagen de una colección
  * @access Public
  */
-router.get(
-  '/:collection/:id',
-  uploadValidations.getImage,
-  showImage
-);
+router.get('/:collection/:id', uploadValidations.getImage, showImage);
 
 /**
  * @route POST /api/uploads
@@ -60,11 +52,7 @@ router.get(
  * @access Private
  * @returns {UploadResponse} Información del archivo subido
  */
-router.post(
-  '/',
-  [validateFileUpload],
-  uploadFile
-);
+router.post('/', [validateFileUpload], uploadFile);
 
 /**
  * @route PUT /api/uploads/:collection/:id
@@ -75,7 +63,7 @@ router.post(
 router.put(
   '/:collection/:id',
   uploadValidations.updateImage,
-  updateImageCloudinary
+  updateImageCloudinary,
 );
 
 // Prevenir modificaciones del router
